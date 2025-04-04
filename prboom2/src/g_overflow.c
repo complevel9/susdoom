@@ -154,8 +154,14 @@ static void InterceptsMemoryOverrun(int location, int value)
   }
 }
 
+//bes 01/20/24: num intercepts max, reset every time itc widget is rebuilt
+int maxitcs = 0;
+
 void InterceptsOverrun(int num_intercepts, intercept_t *intercept)
 {
+  if (maxitcs < num_intercepts)
+    maxitcs = num_intercepts;
+
   if (num_intercepts > MAXINTERCEPTS_ORIGINAL && demo_compatibility && PROCESS(OVERFLOW_INTERCEPT))
   {
     ShowOverflowWarning(OVERFLOW_INTERCEPT, false, "");

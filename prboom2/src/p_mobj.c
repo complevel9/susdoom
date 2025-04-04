@@ -766,6 +766,10 @@ static void P_NightmareRespawn(mobj_t* mobj)
   // remove the old monster,
 
   P_RemoveMobj (mobj);
+
+  // bes 08/04/24
+  extern int pendingxseg, xsegtics;
+  pendingxseg = xsegtics;
 }
 
 

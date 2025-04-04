@@ -295,24 +295,6 @@ function(AddGameExecutable TARGET SOURCES)
         )
     endif()
 
-    if(WIN32)
-        add_definitions("-DUSE_WIN32_PCSOUND_DRIVER -DUSE_WINDOWS_LAUNCHER")
-        set(SOURCES
-            ${SOURCES}
-            ../ICONS/icons.rc
-            e6y_launcher.c
-            e6y_launcher.h
-            SDL/SDL_windows_main.c
-        )
-        if(MSVC)
-            set(SOURCES
-                ${SOURCES}
-                WIN/win_opendir.c
-                WIN/win_opendir.h
-            )
-        endif()
-    endif()
-
     add_definitions("-DUSE_EXPERIMENTAL_MUSIC")
 
     add_executable(${TARGET} WIN32 ${SOURCES})
@@ -378,11 +360,15 @@ function(AddGameExecutable TARGET SOURCES)
 
     if(MSVC)
         set_target_properties(${TARGET} PROPERTIES
-            LINK_FLAGS "/MANIFEST:NO"
+            LINK_FLAGS "/MANIFEST:NO /SUBSYSTEM:CONSOLE"
         )
         add_custom_command(TARGET ${TARGET} POST_BUILD
             COMMAND "mt.exe" -manifest \"${CMAKE_CURRENT_SOURCE_DIR}\\..\\ICONS\\prboom-plus.exe.manifest\" -outputresource:\"$<TARGET_FILE:prboom-plus>\"\;\#1
             COMMAND ${CMAKE_COMMAND} -E copy_if_different ${WAD_DATA_PATH} $<TARGET_FILE_DIR:prboom-plus>
+        )
+    elseif(WIN32)
+        set_target_properties(${TARGET} PROPERTIES
+            LINK_FLAGS "-mconsole"
         )
     endif()
 

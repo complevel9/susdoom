@@ -1,3 +1,6 @@
+#ifndef HEADER_DEFF56E1A870C82C
+#define HEADER_DEFF56E1A870C82C
+
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
@@ -47,6 +50,8 @@
 #define PT_ADDTHINGS    2
 #define PT_EARLYOUT     4
 
+#define PT_NOTRACE      32
+
 typedef struct {
   fixed_t     x;
   fixed_t     y;
@@ -84,6 +89,8 @@ dboolean P_BlockLinesIterator (int x, int y, dboolean func(line_t *));
 dboolean P_BlockThingsIterator(int x, int y, dboolean func(mobj_t *));
 dboolean P_PathTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2,
                        int flags, dboolean trav(intercept_t *));
+dboolean P_PathNoTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2,
+                       int flags);
 
 // MAES: support 512x512 blockmaps.
 int P_GetSafeBlockX(int coord);
@@ -95,4 +102,27 @@ extern fixed_t openrange;
 extern fixed_t lowfloor;
 extern divline_t trace;
 
+//bes 01/20/24: foul hacks to draw these lines on automap
+// bes 02/28/24: moved this to maputl.h and renamed pathtrace to amlinetrace
+typedef struct {
+  fixed_t x1, y1, x2, y2;
+  int when;
+} amlinetrace_t;
+
+#define NUMAMLINETRACES 64
+extern amlinetrace_t amlinetraces[NUMAMLINETRACES];
+extern unsigned int cur_amlinetrace;
+
+// bes 02/28/24: automap rectangle traces for blocks (itc ovf blockmap tiles)
+typedef struct {
+  fixed_t x1, y1, x2, y2;
+  int when;
+} amrecttrace_t;
+
+#define NUMAMRECTTRACES 64
+extern amrecttrace_t amrecttraces[NUMAMRECTTRACES];
+extern unsigned int cur_amrecttrace;
+
 #endif  /* __P_MAPUTL__ */
+#endif // header guard
+

@@ -568,6 +568,13 @@ dboolean P_TraverseIntercepts(traverser_t func, fixed_t maxfrac)
   return true;                  // everything was traversed
 }
 
+
+amlinetrace_t amlinetraces[NUMAMLINETRACES] = { 0 };
+unsigned int cur_amlinetrace = 0;
+
+amrecttrace_t amrecttraces[NUMAMRECTTRACES] = { 0 };
+unsigned int cur_amrecttrace = 0;
+
 //
 // P_PathTraverse
 // Traces a line from x1,y1 to x2,y2,
@@ -576,151 +583,167 @@ dboolean P_TraverseIntercepts(traverser_t func, fixed_t maxfrac)
 // for all lines.
 //
 // killough 5/3/98: reformatted, cleaned up
+// bes 02/28/24: moved body before traverse to P_PathNoTraverse
 
 dboolean P_PathTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2,
                        int flags, dboolean trav(intercept_t *))
 {
-  fixed_t xt1, yt1;
-  fixed_t xt2, yt2;
-  fixed_t xstep, ystep;
-  fixed_t partial;
-  fixed_t xintercept, yintercept;
-  int     mapx, mapy;
-  int     mapx1, mapy1;
-  int     mapxstep, mapystep;
-  int     count;
+	P_PathNoTraverse(x1, y1, x2, y2, flags);
+	// go through the sorted list
+	return P_TraverseIntercepts(trav, FRACUNIT);
+}
 
-  validcount++;
-  intercept_p = intercepts;
+//
+// P_PathNoTraverse
+//
+// bes 02/24/24: Like path traverse but without traversing anything, for itc
 
-  if (!((x1-bmaporgx)&(MAPBLOCKSIZE-1)))
-    x1 += FRACUNIT;     // don't side exactly on a line
+dboolean P_PathNoTraverse(fixed_t x1, fixed_t y1, fixed_t x2, fixed_t y2,
+                       int flags)
+{
+	fixed_t xt1, yt1;
+	fixed_t xt2, yt2;
+	fixed_t xstep, ystep;
+	fixed_t partial;
+	fixed_t xintercept, yintercept;
+	int     mapx, mapy;
+	int     lastmapx, lastmapy;
+	int     tracesdrawn = 0;
+	int     mapx1, mapy1;
+	int     mapxstep, mapystep;
+	int     count;
 
-  if (!((y1-bmaporgy)&(MAPBLOCKSIZE-1)))
-    y1 += FRACUNIT;     // don't side exactly on a line
+	if (!(flags & PT_NOTRACE)) {
+		extern int gametic;
+		amlinetraces[cur_amlinetrace].x1 = x1;
+		amlinetraces[cur_amlinetrace].x2 = x2;
+		amlinetraces[cur_amlinetrace].y1 = y1;
+		amlinetraces[cur_amlinetrace].y2 = y2;
+		amlinetraces[cur_amlinetrace].when = gametic;
+		cur_amlinetrace = (cur_amlinetrace + 1) % NUMAMLINETRACES;
+	}
 
-  trace.x = x1;
-  trace.y = y1;
-  trace.dx = x2 - x1;
-  trace.dy = y2 - y1;
+	validcount++;
+	intercept_p = intercepts;
 
-  if (comperr(comperr_blockmap))
-  {
-    int_64_t _x1, _x2, _y1, _y2;
+	if (!((x1-bmaporgx)&(MAPBLOCKSIZE-1)))
+		x1 += FRACUNIT;     /* don't side exactly on a line */
 
-    _x1 = (int_64_t)x1 - bmaporgx;
-    _y1 = (int_64_t)y1 - bmaporgy;
-    xt1 = (int)(_x1>>MAPBLOCKSHIFT);
-    yt1 = (int)(_y1>>MAPBLOCKSHIFT);
+	if (!((y1-bmaporgy)&(MAPBLOCKSIZE-1)))
+		y1 += FRACUNIT;     /* don't side exactly on a line */
 
-    mapx1 = (int)(_x1>>MAPBTOFRAC);
-    mapy1 = (int)(_y1>>MAPBTOFRAC);
+	trace.x = x1;
+	trace.y = y1;
+	trace.dx = x2 - x1;
+	trace.dy = y2 - y1;
 
-    _x2 = (int_64_t)x2 - bmaporgx;
-    _y2 = (int_64_t)y2 - bmaporgy;
-    xt2 = (int)(_x2>>MAPBLOCKSHIFT);
-    yt2 = (int)(_y2>>MAPBLOCKSHIFT);
+	if (comperr(comperr_blockmap)) {
+		int_64_t _x1, _x2, _y1, _y2;
 
-    x1 -= bmaporgx;
-    y1 -= bmaporgy;
-    x2 -= bmaporgx;
-    y2 -= bmaporgy;
-  }
-  else
-  {
-    x1 -= bmaporgx;
-    y1 -= bmaporgy;
-    xt1 = x1>>MAPBLOCKSHIFT;
-    yt1 = y1>>MAPBLOCKSHIFT;
+		_x1 = (int_64_t)x1 - bmaporgx;
+		_y1 = (int_64_t)y1 - bmaporgy;
+		xt1 = (int)(_x1>>MAPBLOCKSHIFT);
+		yt1 = (int)(_y1>>MAPBLOCKSHIFT);
 
-    mapx1 = x1>>MAPBTOFRAC;
-    mapy1 = y1>>MAPBTOFRAC;
+		mapx1 = (int)(_x1>>MAPBTOFRAC);
+		mapy1 = (int)(_y1>>MAPBTOFRAC);
 
-    x2 -= bmaporgx;
-    y2 -= bmaporgy;
-    xt2 = x2>>MAPBLOCKSHIFT;
-    yt2 = y2>>MAPBLOCKSHIFT;
-  }
+		_x2 = (int_64_t)x2 - bmaporgx;
+		_y2 = (int_64_t)y2 - bmaporgy;
+		xt2 = (int)(_x2>>MAPBLOCKSHIFT);
+		yt2 = (int)(_y2>>MAPBLOCKSHIFT);
 
-  if (xt2 > xt1)
-    {
-      mapxstep = 1;
-      partial = FRACUNIT - (mapx1&(FRACUNIT-1));
-      ystep = FixedDiv (y2-y1,D_abs(x2-x1));
-    }
-  else
-    if (xt2 < xt1)
-      {
-        mapxstep = -1;
-        partial = mapx1&(FRACUNIT-1);
-        ystep = FixedDiv (y2-y1,D_abs(x2-x1));
-      }
-    else
-      {
-        mapxstep = 0;
-        partial = FRACUNIT;
-        ystep = 256*FRACUNIT;
-      }
+		x1 -= bmaporgx;
+		y1 -= bmaporgy;
+		x2 -= bmaporgx;
+		y2 -= bmaporgy;
+	} else {
+		x1 -= bmaporgx;
+		y1 -= bmaporgy;
+		xt1 = x1>>MAPBLOCKSHIFT;
+		yt1 = y1>>MAPBLOCKSHIFT;
 
-  yintercept = mapy1 + FixedMul(partial, ystep);
+		mapx1 = x1>>MAPBTOFRAC;
+		mapy1 = y1>>MAPBTOFRAC;
 
-  if (yt2 > yt1)
-    {
-      mapystep = 1;
-      partial = FRACUNIT - (mapy1&(FRACUNIT-1));
-      xstep = FixedDiv (x2-x1,D_abs(y2-y1));
-    }
-  else
-    if (yt2 < yt1)
-      {
-        mapystep = -1;
-        partial = mapy1&(FRACUNIT-1);
-        xstep = FixedDiv (x2-x1,D_abs(y2-y1));
-      }
-    else
-      {
-        mapystep = 0;
-        partial = FRACUNIT;
-        xstep = 256*FRACUNIT;
-      }
+		x2 -= bmaporgx;
+		y2 -= bmaporgy;
+		xt2 = x2>>MAPBLOCKSHIFT;
+		yt2 = y2>>MAPBLOCKSHIFT;
+	}
 
-  xintercept = mapx1 + FixedMul(partial, xstep);
+	if (xt2 > xt1) {
+		mapxstep = 1;
+		partial = FRACUNIT - (mapx1&(FRACUNIT-1));
+		ystep = FixedDiv (y2-y1,D_abs(x2-x1));
+	} else if (xt2 < xt1) {
+		mapxstep = -1;
+		partial = mapx1&(FRACUNIT-1);
+		ystep = FixedDiv (y2-y1,D_abs(x2-x1));
+	} else {
+		mapxstep = 0;
+		partial = FRACUNIT;
+		ystep = 256*FRACUNIT;
+	}
 
-  // Step through map blocks.
-  // Count is present to prevent a round off error
-  // from skipping the break.
+	yintercept = mapy1 + FixedMul(partial, ystep);
 
-  mapx = xt1;
-  mapy = yt1;
+	if (yt2 > yt1) {
+		mapystep = 1;
+		partial = FRACUNIT - (mapy1&(FRACUNIT-1));
+		xstep = FixedDiv (x2-x1,D_abs(y2-y1));
+	} else if (yt2 < yt1) {
+		mapystep = -1;
+		partial = mapy1&(FRACUNIT-1);
+		xstep = FixedDiv (x2-x1,D_abs(y2-y1));
+	} else {
+		mapystep = 0;
+		partial = FRACUNIT;
+		xstep = 256*FRACUNIT;
+	}
 
-  for (count = 0; count < 64; count++)
-    {
-      if (flags & PT_ADDLINES)
-        if (!P_BlockLinesIterator(mapx, mapy,PIT_AddLineIntercepts))
-          return false; // early out
+	xintercept = mapx1 + FixedMul(partial, xstep);
 
-      if (flags & PT_ADDTHINGS)
-        if (!P_BlockThingsIterator(mapx, mapy,PIT_AddThingIntercepts))
-          return false; // early out
+	/* Step through map blocks.
+	Count is present to prevent a round off error
+	from skipping the break. */
 
-      if (mapx == xt2 && mapy == yt2)
-        break;
+	mapx = xt1;
+	mapy = yt1;
 
-      if ((yintercept >> FRACBITS) == mapy)
-        {
-          yintercept += ystep;
-          mapx += mapxstep;
-        }
-      else
-        if ((xintercept >> FRACBITS) == mapx)
-          {
-            xintercept += xstep;
-            mapy += mapystep;
-          }
-    }
+	for (count = 0; count < 64; count++) {
+		if (flags & PT_ADDLINES)
+			if (!P_BlockLinesIterator(mapx, mapy,PIT_AddLineIntercepts))
+				return false; /* early out*/
 
-  // go through the sorted list
-  return P_TraverseIntercepts(trav, FRACUNIT);
+		if (flags & PT_ADDTHINGS)
+			if (!P_BlockThingsIterator(mapx, mapy,PIT_AddThingIntercepts))
+				return false; /* early out */
+
+		if (mapx == xt2 && mapy == yt2)
+			break;
+
+		if (count > 20 && tracesdrawn < 1 && lastmapx == mapx && lastmapy == mapy) {
+			amrecttraces[cur_amrecttrace].x1 = bmaporgx + ( mapx    * 128 << FRACBITS);
+			amrecttraces[cur_amrecttrace].y1 = bmaporgy + ( mapy    * 128 << FRACBITS);
+			amrecttraces[cur_amrecttrace].x2 = bmaporgx + ((mapx+1) * 128 << FRACBITS);
+			amrecttraces[cur_amrecttrace].y2 = bmaporgy + ((mapy+1) * 128 << FRACBITS);
+			amrecttraces[cur_amrecttrace].when = gametic;
+			cur_amrecttrace = (cur_amrecttrace + 1) % NUMAMRECTTRACES;
+			tracesdrawn++;
+		}
+		lastmapx = mapx;
+		lastmapy = mapy;
+
+		if ((yintercept >> FRACBITS) == mapy) {
+			yintercept += ystep;
+			mapx += mapxstep;
+		} else if ((xintercept >> FRACBITS) == mapx) {
+			xintercept += xstep;
+			mapy += mapystep;
+		}
+	}
+	return false;
 }
 
 // MAES: support 512x512 blockmaps.

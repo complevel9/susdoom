@@ -1,3 +1,6 @@
+#ifndef HEADER_AD855C1C90F21999
+#define HEADER_AD855C1C90F21999
+
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
@@ -165,7 +168,7 @@ extern PFNGLGETUNIFORMLOCATIONARBPROC       GLEXT_glGetUniformLocationARB;
 extern PFNGLGETACTIVEUNIFORMARBPROC         GLEXT_glGetActiveUniformARB;
 extern PFNGLGETUNIFORMFVARBPROC             GLEXT_glGetUniformfvARB;
 #endif
-  
+
 void gld_InitOpenGL(dboolean compatibility_mode);
 
 //states
@@ -189,3 +192,5 @@ typedef enum
 void SetTextureMode(tex_mode_e type);
 
 #endif // _GL_OPENGL_H
+#endif // header guard
+

@@ -93,6 +93,7 @@ int map_secret_after;
 int map_always_updates;
 int map_grid_size;
 int map_scroll_speed;
+int map_grid_blimit;
 int map_wheel_zoom;
 int map_use_multisamling;
 int map_textured;
@@ -209,6 +210,31 @@ mline_t thintriangle_guy[] =
 };
 #undef R
 #define NUMTHINTRIANGLEGUYLINES (sizeof(thintriangle_guy)/sizeof(mline_t))
+
+
+#define R (FRACUNIT)
+mline_t square_guy[] =
+{
+  {{-R, -R}, {-R,  R}},
+  {{-R,  R}, { R,  R}},
+  {{ R,  R}, { R, -R}},
+  {{ R, -R}, {-R, -R}}
+};
+#undef R
+#define NUMSQUAREGUYLINES (sizeof(square_guy)/sizeof(mline_t))
+//bes 01/19/24 square for hitbox like in linguica's movement bible for iddt2
+
+#define R (FRACUNIT)
+mline_t arrowhead_guy[] =
+{
+{ { (fixed_t)0, (fixed_t)(-.5*R) }, { (fixed_t)(.75*R), (fixed_t)0 } },
+{ { (fixed_t)0, (fixed_t)( .5*R) }, { (fixed_t)(.75*R), (fixed_t)0 } }
+};
+#undef R
+#define NUMARROWHEADGUYLINES (sizeof(arrowhead_guy)/sizeof(mline_t))
+//bes: replacement for thin triangle since way too much lines are drawn with that plus square
+// also it looks like doom builder
+
 
 int ddt_cheating = 0;         // killough 2/7/98: make global, rename to ddt_*
 
@@ -439,8 +465,8 @@ static void AM_findMinMaxBoundaries(void)
   a = FixedDiv(f_w<<FRACBITS, max_w);
   b = FixedDiv(f_h<<FRACBITS, max_h);
 
-  min_scale_mtof = a < b ? a : b;
-  max_scale_mtof = FixedDiv(f_h<<FRACBITS, 2*PLAYERRADIUS);
+  min_scale_mtof = (a < b ? a : b) >> 2; // bes 02/27/24: min reduce by 4, max incr by 4
+  max_scale_mtof = FixedDiv(f_h<<FRACBITS, 2*PLAYERRADIUS) << 2;
 }
 
 //
@@ -799,7 +825,7 @@ dboolean AM_Responder
     }
     else if (ch == key_map_mark)
     {
-      /* Ty 03/27/98 - *not* externalized     
+      /* Ty 03/27/98 - *not* externalized
        * cph 2001/11/20 - use doom_printf so we don't have our own buffer */
       doom_printf("%s %d", s_AMSTR_MARKEDSPOT, markpointnum);
       AM_addMark();
@@ -941,7 +967,7 @@ static void AM_changeWindowScale(void)
       ftom_zoommul = ((int) ((float)FRACUNIT * (1.00f + f_paninc / 200.0f)));
     }
   }
-  
+
   scale_mtof = FixedMul(scale_mtof, mtof_zoommul);
   scale_ftom = FixedDiv(FRACUNIT, scale_mtof);
 
@@ -1207,7 +1233,7 @@ static void AM_drawGrid(int color)
   fixed_t minlen, extx, exty;
   fixed_t minx, miny;
   fixed_t gridsize = map_grid_size << MAPBITS;
-  
+
   if(map_grid_size == -1)
   {
     fixed_t oprtimal_gridsize = m_h / 16;
@@ -1284,6 +1310,56 @@ static void AM_drawGrid(int color)
     AM_drawMline(&ml, color);
   }
 }
+
+//
+// AM_drawBlockGrid()
+//
+// Draws blockmap grid with accurate width and height
+//
+// Passed the color to draw the grid lines
+// Returns nothing
+//
+// bes 02/28/24
+static void AM_drawBlockGrid(int color)
+{
+	fixed_t x, y;
+	mline_t ml;
+	fixed_t gridsize = 128 << MAPBITS;
+
+	// draw vertical gridlines, just draw everything
+	// might be slow but idk
+	for (x = 0; x <= bmapwidth; x++) {
+		ml.a.x = (bmaporgx >> FRACTOMAPBITS) + x * gridsize;
+		ml.a.y = (bmaporgy >> FRACTOMAPBITS);
+		ml.b.x = (bmaporgx >> FRACTOMAPBITS) + x * gridsize;
+		ml.b.y = (bmaporgy >> FRACTOMAPBITS) + bmapheight * gridsize;
+		if (automapmode & am_rotate) {
+			AM_rotatePoint (&ml.a);
+			AM_rotatePoint (&ml.b);
+		} else {
+			AM_SetMPointFloatValue(&ml.a);
+			AM_SetMPointFloatValue(&ml.b);
+		}
+		AM_drawMline(&ml, color);
+	}
+
+	// draw horizontal gridlines
+	for (y = 0; y <= bmapheight; y++) {
+		ml.a.x = (bmaporgx >> FRACTOMAPBITS);
+		ml.a.y = (bmaporgy >> FRACTOMAPBITS) + y * gridsize;
+		ml.b.x = (bmaporgx >> FRACTOMAPBITS) + bmapwidth * gridsize;
+		ml.b.y = (bmaporgy >> FRACTOMAPBITS) + y * gridsize;
+		if (automapmode & am_rotate) {
+			AM_rotatePoint (&ml.a);
+			AM_rotatePoint (&ml.b);
+		} else {
+			AM_SetMPointFloatValue(&ml.a);
+			AM_SetMPointFloatValue(&ml.b);
+		}
+		AM_drawMline(&ml, color);
+	}
+}
+
 
 //
 // AM_DoorColor()
@@ -1708,8 +1784,8 @@ static void AM_ProcessNiceThing(mobj_t* mobj, angle_t angle, fixed_t x, fixed_t 
     int rotate;
     unsigned char r, g, b;
   } map_nice_icon_param_t;
-  
-  static const map_nice_icon_param_t icons[] = 
+
+  static const map_nice_icon_param_t icons[] =
   {
     {SPR_STIM, am_icon_health, 12, 0, 100, 100, 200},
     {SPR_MEDI, am_icon_health, 16, 0, 100, 100, 200},
@@ -1881,7 +1957,7 @@ static void AM_DrawNiceThings(void)
     if (playeringame[i])
     {
       t = players[i].mo;
-      AM_GetMobjPosition(t, &p, &angle);
+      (t, &p, &angle);
       if (automapmode & am_rotate)
         AM_rotatePoint(&p);
       else
@@ -1889,7 +1965,7 @@ static void AM_DrawNiceThings(void)
       AM_ProcessNiceThing(t, angle, p.x, p.y);
     }
   }
-  
+
   // walls
   if (ddt_cheating == 2)
   {
@@ -2065,14 +2141,23 @@ static void AM_drawThings(void)
       }
       //jff 1/5/98 end added code for keys
       //jff previously entire code
-      AM_drawLineCharacter(thintriangle_guy, NUMTHINTRIANGLEGUYLINES,
+      // AM_drawLineCharacter(thintriangle_guy, NUMTHINTRIANGLEGUYLINES,
+      AM_drawLineCharacter(arrowhead_guy, NUMARROWHEADGUYLINES,
         scale, angle,
-        t->flags & MF_FRIEND && !t->player ? mapcolor_frnd : 
+        t->flags & MF_FRIEND && !t->player ? mapcolor_frnd :
         /* cph 2006/07/30 - Show count-as-kills in red. */
         ((t->flags & (MF_COUNTKILL | MF_CORPSE)) == MF_COUNTKILL) ? mapcolor_enemy :
         /* bbm 2/28/03 Show countable items in yellow. */
         t->flags & MF_COUNTITEM ? mapcolor_item : mapcolor_sprt,
         p.x, p.y);
+
+      AM_drawLineCharacter(square_guy, NUMSQUAREGUYLINES,
+        t->radius >> FRACTOMAPBITS, 0,
+        t->flags & MF_FRIEND && !t->player ? mapcolor_frnd :
+        ((t->flags & (MF_COUNTKILL | MF_CORPSE)) == MF_COUNTKILL) ? mapcolor_enemy :
+        t->flags & MF_COUNTITEM ? mapcolor_item : mapcolor_sprt,
+        p.x, p.y);
+
       t = t->snext;
     }
    }
@@ -2108,7 +2193,7 @@ static void AM_drawMarks(void)
     {
       int k, w;
       mpoint_t p;
-      
+
       p.x = markpoints[i].x;// - m_x + prev_m_x;
       p.y = markpoints[i].y;// - m_y + prev_m_y;
 
@@ -2125,7 +2210,7 @@ static void AM_drawMarks(void)
         p.fy = CYMTOF_F(p.fy) - (float)markpoints[i].h * SCREENHEIGHT / 200.0f / 2.0f;
       }
 
-      if (V_GetMode() == VID_MODEGL ? 
+      if (V_GetMode() == VID_MODEGL ?
           p.y < f_y + f_h && p.y + markpoints[i].h * SCREENHEIGHT / 200 >= f_y :
           p.y < f_y + f_h && p.y >= f_y)
       {
@@ -2158,7 +2243,7 @@ static void AM_drawMarks(void)
 
                 x = p.x * 320 / WIDE_SCREENWIDTH;
                 y = p.y * 200 / WIDE_SCREENHEIGHT;
-                
+
                 flags = VPT_ALIGN_LEFT | VPT_STRETCH;
                 break;
               case patch_stretch_full:
@@ -2167,7 +2252,7 @@ static void AM_drawMarks(void)
 
                 x = p.x * 320 / SCREENWIDTH;
                 y = p.y * 200 / SCREENHEIGHT;
-                
+
                 flags = VPT_ALIGN_WIDE | VPT_STRETCH;
                 break;
             }
@@ -2225,11 +2310,74 @@ static void AM_drawCrosshair(int color)
   V_DrawLine(&line, color);
 }
 
+static void AM_drawLineTraces(void)
+{
+	for (unsigned short i = 0; i < NUMAMLINETRACES; i++) {
+		amlinetrace_t *p = &amlinetraces[(cur_amlinetrace + i) % NUMAMLINETRACES];
+		int fade = (gametic - p->when) << 1;
+		if (fade < 24 && (p->x1 != p->x2 || p->y1 != p->y2)) {
+			int color;
+			mline_t pathline = {
+				{p->x1 >> FRACTOMAPBITS, p->y1 >> FRACTOMAPBITS},
+				{p->x2 >> FRACTOMAPBITS, p->y2 >> FRACTOMAPBITS}
+			};
+
+			if (automapmode & am_rotate) {
+				AM_rotatePoint(&pathline.a);
+				AM_rotatePoint(&pathline.b);
+			} else {
+				AM_SetMPointFloatValue(&pathline.a);
+				AM_SetMPointFloatValue(&pathline.b);
+			}
+			// red to fading gray
+			color = gametic <= p->when + 1 ? 176 : 78 + fade;
+			AM_drawMline(&pathline, color);
+		}
+	}
+}
+
+static void AM_drawRectTraces(void)
+{
+	for (unsigned short i = 0; i < NUMAMLINETRACES; i++) {
+		amrecttrace_t *p = &amrecttraces[(cur_amrecttrace + i) % NUMAMRECTTRACES];
+		int fade = (gametic - p->when) >> 1;
+		if (!(gametic&1) && fade < 16 && (p->x1 != p->x2 || p->y1 != p->y2)) {
+			int color;
+			mpoint_t rectpts[4] = {
+				{p->x1 >> FRACTOMAPBITS, p->y1 >> FRACTOMAPBITS},
+				{p->x2 >> FRACTOMAPBITS, p->y1 >> FRACTOMAPBITS},
+				{p->x2 >> FRACTOMAPBITS, p->y2 >> FRACTOMAPBITS},
+				{p->x1 >> FRACTOMAPBITS, p->y2 >> FRACTOMAPBITS}
+			};
+
+			if (automapmode & am_rotate) {
+				for (short j = 0; j < 4; j++)
+					AM_rotatePoint(&rectpts[j]);
+			} else {
+				for (short j = 0; j < 4; j++)
+					AM_SetMPointFloatValue(&rectpts[j]);
+			}
+			// purple to fading green
+			color = gametic <= p->when + 1 ? 251 : 112 + fade;
+			// flashing green/purple
+//			color = (gametic - p->when) * 16;
+//			color = 250;
+
+			for (short j = 0; j < 4; j++) {
+				mline_t ml = {rectpts[j], rectpts[(j+1)&3]};
+				AM_drawMline(&ml, color);
+			}
+
+		}
+	}
+}
+
+
 void M_ChangeMapGridSize(void)
 {
   if (map_grid_size > 0)
   {
-    map_grid_size = MAX(map_grid_size, 8);
+    map_grid_size = MAX(map_grid_size, 1);
   }
 }
 
@@ -2347,13 +2495,20 @@ void AM_Drawer (void)
     AM_drawSubsectors();
   }
 
-  if (automapmode & am_grid)
-    AM_drawGrid(mapcolor_grid);      //jff 1/7/98 grid default color
+  if (automapmode & am_grid) {
+    if (map_grid_blimit)
+	  AM_drawBlockGrid(mapcolor_grid);      // bes 02/27/24: visualize the blockmap for itc ovf
+	else
+      AM_drawGrid(mapcolor_grid);      //jff 1/7/98 grid default color
+  }
+
   AM_drawWalls();
   AM_drawPlayers();
+  AM_drawLineTraces();
+  AM_drawRectTraces();
   AM_drawThings(); //jff 1/5/98 default double IDDT sprite
   AM_drawCrosshair(mapcolor_hair);   //jff 1/7/98 default crosshair color
-  
+
 #if defined(GL_DOOM)
   if (V_GetMode() == VID_MODEGL)
   {

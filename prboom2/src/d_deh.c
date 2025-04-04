@@ -94,8 +94,8 @@ int deh_apply_cheats = true;
 // (e.g. from wads)
 
 typedef struct {
-  /* cph 2006/08/06 - 
-   * if lump != NULL, lump is the start of the lump, 
+  /* cph 2006/08/06 -
+   * if lump != NULL, lump is the start of the lump,
    * inp is the current read pos. */
   const byte *inp, *lump;
   long size;
@@ -1404,6 +1404,7 @@ static const deh_bexptr deh_bexptrs[] = // CPhipps - static const
   {A_FireOldBFG,      "A_FireOldBFG"},      // killough 7/19/98: classic BFG firing function
   {A_BetaSkullAttack, "A_BetaSkullAttack"}, // killough 10/98: beta lost souls attacked different
   {A_Stop,            "A_Stop"},
+  {A_FireShotgun65k,  "A_FireShotgun65k"}, // bes 02/24/24: for bruteforcing shit
 
   // This NULL entry must be the last in the list
   {NULL,              "A_NULL"},  // Ty 05/16/98
@@ -1506,17 +1507,17 @@ void deh_changeCompTranslucency(void)
   int i;
   int predefined_translucency[] = {
     MT_FIRE, MT_SMOKE, MT_FATSHOT, MT_BRUISERSHOT, MT_SPAWNFIRE,
-    MT_TROOPSHOT, MT_HEADSHOT, MT_PLASMA, MT_BFG, MT_ARACHPLAZ, MT_PUFF, 
+    MT_TROOPSHOT, MT_HEADSHOT, MT_PLASMA, MT_BFG, MT_ARACHPLAZ, MT_PUFF,
     MT_TFOG, MT_IFOG, MT_MISC12, MT_INV, MT_INS, MT_MEGA
   };
-  
+
   for(i = 0; (size_t)i < sizeof(predefined_translucency)/sizeof(predefined_translucency[0]); i++)
   {
     if (!DEH_mobjinfo_bits[predefined_translucency[i]])
     {
       if (default_comp[comp_translucency])
         mobjinfo[predefined_translucency[i]].flags &= ~MF_TRANSLUCENT;
-      else 
+      else
         mobjinfo[predefined_translucency[i]].flags |= MF_TRANSLUCENT;
     }
   }
@@ -1529,12 +1530,12 @@ void deh_applyCompatibility(void)
   max_soul = (IsDehMaxSoul ? deh_max_soul : comp_max);
   mega_health = (IsDehMegaHealth ? deh_mega_health : comp_max);
 
-  if (comp[comp_maxhealth]) 
+  if (comp[comp_maxhealth])
   {
     maxhealth = 100;
     maxhealthbonus = (IsDehMaxHealth ? deh_maxhealth : comp_max);
   }
-  else 
+  else
   {
     maxhealth = (IsDehMaxHealth ? deh_maxhealth : 100);
     maxhealthbonus = maxhealth * 2;
@@ -1974,7 +1975,7 @@ static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
 
       // killough 11/98: really bail out on blank lines (break != continue)
       if (!*inbuffer) break;  // bail out with blank line between sections
-      
+
       // e6y: Correction of wrong processing of Bits parameter if its value is equal to zero
       // No more desync on HACX demos.
       bGetData = deh_GetData(inbuffer,key,&value,&strval,fpout);
@@ -1986,16 +1987,16 @@ static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
         }
       for (ix=0; ix<DEH_MOBJINFOMAX; ix++) {
         if (deh_strcasecmp(key,deh_mobjinfo[ix])) continue;
-        
+
         if (deh_strcasecmp(key,"Bits")) {
           // standard value set
-          
+
           // The old code here was the cause of a DEH-related bug in prboom.
           // When the mobjinfo_t.flags member was graduated to an int64, this
           // code was caught unawares and was indexing each property of the
-          // mobjinfo as if it were still an int32. This caused sets of the 
-          // "raisestate" member to partially overwrite the "flags" member, 
-          // thus screwing everything up and making most DEH patches result in 
+          // mobjinfo as if it were still an int32. This caused sets of the
+          // "raisestate" member to partially overwrite the "flags" member,
+          // thus screwing everything up and making most DEH patches result in
           // unshootable enemy types. Moved to a separate function above
           // and stripped of all hairy struct address indexing. - POPE
           setMobjInfoValue(indexnum, ix, value);
@@ -2022,9 +2023,9 @@ static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
               for (iy=0; iy < DEH_MOBJFLAGMAX; iy++) {
                 if (deh_strcasecmp(strval,deh_mobjflags[iy].name)) continue;
                 if (fpout) {
-                  fprintf(fpout, 
+                  fprintf(fpout,
                     "ORed value 0x%08lX%08lX %s\n",
-                    (unsigned long)(deh_mobjflags[iy].value>>32) & 0xffffffff, 
+                    (unsigned long)(deh_mobjflags[iy].value>>32) & 0xffffffff,
                     (unsigned long)deh_mobjflags[iy].value & 0xffffffff, strval
                   );
                 }
@@ -2038,9 +2039,9 @@ static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
 
             // Don't worry about conversion -- simply print values
             if (fpout) {
-              fprintf(fpout, 
+              fprintf(fpout,
                 "Bits = 0x%08lX%08lX\n",
-                (unsigned long)(value>>32) & 0xffffffff, 
+                (unsigned long)(value>>32) & 0xffffffff,
                 (unsigned long)value & 0xffffffff
               );
             }
@@ -2051,7 +2052,7 @@ static void deh_procThing(DEHFILE *fpin, FILE* fpout, char *line)
         if (fpout) {
           fprintf(fpout,
             "Assigned 0x%08lx%08lx to %s(%d) at index %d\n",
-            (unsigned long)(value>>32) & 0xffffffff, 
+            (unsigned long)(value>>32) & 0xffffffff,
             (unsigned long)value & 0xffffffff, key, indexnum, ix
           );
         }
@@ -2708,7 +2709,7 @@ static void deh_procText(DEHFILE *fpin, FILE* fpout, char *line)
   // Text 4 4  Text 4 4;   Text 6 6      Text 6 6
   // BOSSBOS2  BOS2BOSS;   RUNNINSTALKS  STALKSRUNNIN
   // It corrects buggy behaviour on "All Hell is Breaking Loose" TC
-  // http://www.doomworld.com/idgames/index.php?id=6480 
+  // http://www.doomworld.com/idgames/index.php?id=6480
   static dboolean sprnames_state[NUMSPRITES+1];
   static dboolean S_sfx_state[NUMSFX];
   static dboolean S_music_state[NUMMUSIC];
@@ -2762,7 +2763,7 @@ static void deh_procText(DEHFILE *fpin, FILE* fpout, char *line)
     // CPhipps - fix constness problem
     char *s;
     sprnames[i] = s = strdup(sprnames[i]);
-    
+
     //e6y: flag the sprite as changed
     sprnames_state[i] = true;
 
@@ -3023,7 +3024,7 @@ static void deh_procHelperThing(DEHFILE *fpin, FILE *fpout, char *line)
   {
       if (!dehfgets(inbuffer, sizeof(inbuffer), fpin)) break;
       lfstrip(inbuffer);
-      if (!*inbuffer) break;    
+      if (!*inbuffer) break;
       if (!deh_GetData(inbuffer,key,&value,NULL,fpout)) // returns TRUE if ok
       {
           if (fpout) fprintf(fpout,"Bad data pair in '%s'\n",inbuffer);
@@ -3058,7 +3059,7 @@ static void deh_procBexSprites(DEHFILE *fpin, FILE *fpout, char *line)
 
    if(fpout)
       fprintf(fpout,"Processing sprite name substitution\n");
-   
+
    strncpy(inbuffer,line,DEH_BUFFERMAX-1);
 
    while(!dehfeof(fpin) && *inbuffer && (*inbuffer != ' '))
@@ -3068,7 +3069,7 @@ static void deh_procBexSprites(DEHFILE *fpin, FILE *fpout, char *line)
       if(*inbuffer == '#')
         continue;  // skip comment lines
       lfstrip(inbuffer);
-      if(!*inbuffer) 
+      if(!*inbuffer)
         break;  // killough 11/98
       if(!deh_GetData(inbuffer,key,&value,&strval,fpout)) // returns TRUE if ok
       {
@@ -3114,10 +3115,10 @@ static void deh_procBexSounds(DEHFILE *fpin, FILE *fpout, char *line)
    char candidate[7];
    int  rover;
    size_t len;
-   
+
    if(fpout)
       fprintf(fpout,"Processing sound name substitution\n");
-   
+
    strncpy(inbuffer,line,DEH_BUFFERMAX-1);
 
    while(!dehfeof(fpin) && *inbuffer && (*inbuffer != ' '))
@@ -3127,7 +3128,7 @@ static void deh_procBexSounds(DEHFILE *fpin, FILE *fpout, char *line)
       if(*inbuffer == '#')
 	 continue;  // skip comment lines
       lfstrip(inbuffer);
-      if(!*inbuffer) 
+      if(!*inbuffer)
 	 break;  // killough 11/98
       if(!deh_GetData(inbuffer,key,&value,&strval,fpout)) // returns TRUE if ok
       {
@@ -3174,10 +3175,10 @@ static void deh_procBexMusic(DEHFILE *fpin, FILE *fpout, char *line)
    char candidate[7];
    int  rover;
    size_t len;
-   
+
    if(fpout)
       fprintf(fpout,"Processing music name substitution\n");
-   
+
    strncpy(inbuffer,line,DEH_BUFFERMAX-1);
 
    while(!dehfeof(fpin) && *inbuffer && (*inbuffer != ' '))
@@ -3187,7 +3188,7 @@ static void deh_procBexMusic(DEHFILE *fpin, FILE *fpout, char *line)
       if(*inbuffer == '#')
 	 continue;  // skip comment lines
       lfstrip(inbuffer);
-      if(!*inbuffer) 
+      if(!*inbuffer)
 	 break;  // killough 11/98
       if(!deh_GetData(inbuffer,key,&value,&strval,fpout)) // returns TRUE if ok
       {

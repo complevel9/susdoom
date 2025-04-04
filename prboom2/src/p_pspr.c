@@ -48,6 +48,8 @@
 #include "lprintf.h"
 #include "e6y.h"//e6y
 
+#include "p_maputl.h"
+
 #define LOWERSPEED   (FRACUNIT*6)
 #define RAISESPEED   (FRACUNIT*6)
 #define WEAPONBOTTOM (FRACUNIT*128)
@@ -726,7 +728,7 @@ void A_FirePlasma(player_t *player, pspdef_t *psp)
 // the height of the intended target
 //
 
-//e6y static 
+//e6y static
 fixed_t bulletslope;
 
 static void P_BulletSlope(mobj_t *mo)
@@ -840,6 +842,38 @@ void A_FireShotgun2(player_t *player, pspdef_t *psp)
       P_LineAttack(player->mo, angle, MISSILERANGE, bulletslope +
                    ((t - P_Random(pr_shotgun))<<5), damage);
     }
+}
+
+// bes 02/24/24
+//
+// A_FireShotgun65k
+//
+
+void A_FireShotgun65k(player_t *player, pspdef_t *psp)
+{
+  int i;
+  fixed_t x2, y2;
+  mobj_t *pmo = player->mo;
+
+  CHECK_WEAPON_CODEPOINTER("A_FireShotgun65k", player);
+
+  S_StartSound(pmo, sfx_shotgn);
+  P_SetMobjState(pmo, S_PLAY_ATK2);
+
+//  player->ammo[weaponinfo[player->readyweapon].ammo]--; // infinite ammo
+
+  A_FireSomething(player,0);                                      // phares
+
+  P_BulletSlope(pmo);
+
+	for (i=-1024; i<1024; i++) {
+		angle_t angle = pmo->angle + (i << ANGLETOFINESHIFT);
+		{
+		x2 = pmo->x + (MISSILERANGE>>FRACBITS)*finecosine[angle >> ANGLETOFINESHIFT];
+		y2 = pmo->y + (MISSILERANGE>>FRACBITS)*finesine  [angle >> ANGLETOFINESHIFT];
+		P_PathNoTraverse(pmo->x,pmo->y,x2,y2,PT_ADDLINES|PT_ADDTHINGS|(i&63 ? PT_NOTRACE : 0));
+		}
+	}
 }
 
 //

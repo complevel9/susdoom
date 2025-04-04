@@ -3,7 +3,7 @@ CMakeCache.txt
 Makefile
 cmake_install.cmake
 
-/build*
+*/build*
 /dependencies*
 /prboom2/ICONS/icons.aps
 /prboom2/ImportExecutables.cmake

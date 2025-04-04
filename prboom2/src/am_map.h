@@ -1,3 +1,6 @@
+#ifndef HEADER_DEF9D2CCD8DB9776
+#define HEADER_DEF9D2CCD8DB9776
+
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
@@ -143,6 +146,7 @@ extern int map_secret_after;  // secrets do not appear til after bagged
 extern int map_always_updates;
 extern int map_grid_size;
 extern int map_scroll_speed;
+extern int map_grid_blimit;     // draw blockmap grid instead of normal grid bes 02/28/24
 extern int map_wheel_zoom;
 extern int map_use_multisamling;
 
@@ -180,10 +184,12 @@ typedef enum
 #if defined(HAVE_LIBSDL2_IMAGE) && defined(GL_DOOM)
   map_things_appearance_icon,
 #endif
-  
+
   map_things_appearance_max
 } map_things_appearance_t;
 extern map_things_appearance_t map_things_appearance;
 extern const char *map_things_appearance_list[];
 
 #endif
+#endif // header guard
+

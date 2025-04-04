@@ -1,3 +1,6 @@
+#ifndef HEADER_BE077299C128947B
+#define HEADER_BE077299C128947B
+
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
@@ -126,5 +129,8 @@ void A_BFGsound();
 void A_FireBFG();
 void A_BFGSpray();
 void A_FireOldBFG();
+void A_FireShotgun65k();
 
 #endif
+#endif // header guard 
+

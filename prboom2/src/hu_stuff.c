@@ -78,12 +78,16 @@ int hud_num;
 
 //jff 2/16/98 add coord text widget coordinates
 // proff - changed to SCREENWIDTH to 320 for stretching
-#define HU_COORDX (320 - 13*hu_font2['A'-HU_FONTSTART].width)
+#define HU_COORDX (320 - 20*hu_font2['A'-HU_FONTSTART].width)
 //jff 3/3/98 split coord widget into three lines in upper right of screen
 #define HU_COORDXYZ_Y (1 * hu_font['A'-HU_FONTSTART].height + 1)
 #define HU_COORDX_Y (0 + 0*hu_font['A'-HU_FONTSTART].height + HU_COORDXYZ_Y)
 #define HU_COORDY_Y (1 + 1*hu_font['A'-HU_FONTSTART].height + HU_COORDXYZ_Y)
 #define HU_COORDZ_Y (2 + 2*hu_font['A'-HU_FONTSTART].height + HU_COORDXYZ_Y)
+#define HU_COORDA_Y (3 + 3*hu_font['A'-HU_FONTSTART].height + HU_COORDXYZ_Y)
+#define HU_COORDMX_Y (5 + 5*hu_font['A'-HU_FONTSTART].height + HU_COORDXYZ_Y)
+#define HU_COORDMY_Y (6 + 6*hu_font['A'-HU_FONTSTART].height + HU_COORDXYZ_Y)
+#define HU_COORDMZ_Y (7 + 7*hu_font['A'-HU_FONTSTART].height + HU_COORDXYZ_Y)
 
 #define HU_MAP_STAT_X (0)
 #define HU_MAP_STAT_Y (1 * hu_font['A'-HU_FONTSTART].height + 1)
@@ -149,9 +153,15 @@ static hu_textline_t  w_title;
 static hu_stext_t     w_message;
 static hu_itext_t     w_chat;
 static hu_itext_t     w_inputbuffer[MAXPLAYERS];
+
 static hu_textline_t  w_coordx; //jff 2/16/98 new coord widget for automap
 static hu_textline_t  w_coordy; //jff 3/3/98 split coord widgets automap
 static hu_textline_t  w_coordz; //jff 3/3/98 split coord widgets automap
+static hu_textline_t  w_angle; //bes 01/19/24 add coord angle
+static hu_textline_t  w_coordmx; //bes 01/19/24 momenta display widgets
+static hu_textline_t  w_coordmy;
+static hu_textline_t  w_coordmz;
+
 static hu_textline_t  w_ammo;   //jff 2/16/98 new ammo widget for hud
 static hu_textline_t  w_health; //jff 2/16/98 new health widget for hud
 static hu_textline_t  w_armor;  //jff 2/16/98 new armor widget for hud
@@ -160,6 +170,9 @@ static hu_textline_t  w_keys;   //jff 2/16/98 new keys widget for hud
 static hu_textline_t  w_gkeys;  //jff 3/7/98 graphic keys widget for hud
 static hu_textline_t  w_monsec; //jff 2/16/98 new kill/secret widget for hud
 static hu_mtext_t     w_rtext;  //jff 2/26/98 text message refresh widget
+
+static hu_textline_t  w_rngindex;   //bes 10/13/23 lol rng index
+static hu_textline_t  w_itc;   //bes 01/18/24 lol intercepts
 
 static hu_textline_t  w_map_monsters;  //e6y monsters widget for automap
 static hu_textline_t  w_map_secrets;   //e6y secrets widgets automap
@@ -194,6 +207,7 @@ static dboolean    headsupactive = false;
 
 //jff 2/16/98 hud supported automap colors added
 int hudcolor_titl;  // color range of automap level title
+// bes: made obsolete, kept so that file changes are minimal
 int hudcolor_xyco;  // color range of new coords on automap
 int hudcolor_mapstat_title;
 int hudcolor_mapstat_value;
@@ -210,6 +224,11 @@ int hud_list_bgon;  // enable for solid window background for message list
 static char hud_coordstrx[32];
 static char hud_coordstry[32];
 static char hud_coordstrz[32];
+static char hud_anglestr[32];
+static char hud_coordstrmx[32];
+static char hud_coordstrmy[32];
+static char hud_coordstrmz[32];
+
 static char hud_ammostr[80];
 static char hud_healthstr[80];
 static char hud_armorstr[80];
@@ -217,6 +236,9 @@ static char hud_weapstr[80];
 static char hud_keysstr[80];
 static char hud_gkeysstr[80]; //jff 3/7/98 add support for graphic key display
 static char hud_monsecstr[80];
+
+static char hud_idxstr[32];
+
 
 //
 // Builtin map names.
@@ -612,6 +634,26 @@ void HU_Start(void)
     VPT_NONE
   );
 
+  HUlib_initTextLine
+  (
+    &w_rngindex,
+    0, 0,
+    hu_font2,
+    HU_FONTSTART,
+    CR_BLUE,
+    VPT_NONE
+  );
+  HUlib_initTextLine
+  (
+    &w_itc,
+    0, 0,
+    hu_font2,
+    HU_FONTSTART,
+    CR_GREEN,
+    VPT_NONE
+  );
+
+
   // create the hud weapons widget
   // list of numbers of weapons possessed
   // lower left or lower right of screen
@@ -802,9 +844,9 @@ void HU_Start(void)
     &w_coordx,
     HU_COORDX,
     HU_COORDX_Y,
-    hu_font,
+    hu_font2,
     HU_FONTSTART,
-    hudcolor_xyco,
+    CR_GRAY,
     VPT_ALIGN_RIGHT_TOP
   );
   HUlib_initTextLine
@@ -812,9 +854,9 @@ void HU_Start(void)
     &w_coordy,
     HU_COORDX,
     HU_COORDY_Y,
-    hu_font,
+    hu_font2,
     HU_FONTSTART,
-    hudcolor_xyco,
+    CR_GRAY,
     VPT_ALIGN_RIGHT_TOP
   );
   HUlib_initTextLine
@@ -822,9 +864,49 @@ void HU_Start(void)
     &w_coordz,
     HU_COORDX,
     HU_COORDZ_Y,
-    hu_font,
+    hu_font2,
     HU_FONTSTART,
-    hudcolor_xyco,
+    CR_GRAY,
+    VPT_ALIGN_RIGHT_TOP
+  );
+  HUlib_initTextLine
+  (
+    &w_angle,
+    HU_COORDX,
+    HU_COORDA_Y,
+    hu_font2,
+    HU_FONTSTART,
+    CR_GRAY,
+    VPT_ALIGN_RIGHT_TOP
+  );
+  HUlib_initTextLine
+  (
+    &w_coordmx,
+    HU_COORDX,
+    HU_COORDMX_Y,
+    hu_font2,
+    HU_FONTSTART,
+    CR_GRAY,
+    VPT_ALIGN_RIGHT_TOP
+  );
+  HUlib_initTextLine
+  (
+    &w_coordmy,
+    HU_COORDX,
+    HU_COORDMY_Y,
+    hu_font2,
+    HU_FONTSTART,
+    CR_GRAY,
+    VPT_ALIGN_RIGHT_TOP
+  );
+  HUlib_initTextLine
+  (
+    &w_coordmz,
+    HU_COORDX,
+    HU_COORDMZ_Y,
+    hu_font2,
+    HU_FONTSTART,
+    CR_GRAY,
     VPT_ALIGN_RIGHT_TOP
   );
 //e6y
@@ -934,6 +1016,7 @@ void HU_Start(void)
 
   //jff 2/16/98 initialize ammo widget
   strcpy(hud_ammostr,"AMM ");
+  strcpy(hud_idxstr,"RNG ");
 
   //jff 2/16/98 initialize health widget
   strcpy(hud_healthstr,"HEL ");
@@ -982,7 +1065,7 @@ void HU_Start(void)
     );
 
   HU_init_crosshair();
-  
+
   // now allow the heads-up display to run
   headsupactive = true;
 
@@ -1045,6 +1128,12 @@ void HU_widget_draw_armor(void);
 void HU_widget_build_hudadd(void);
 void HU_widget_draw_hudadd(void);
 
+void HU_widget_build_rngindex(void);
+void HU_widget_draw_rngindex(void);
+
+void HU_widget_build_itc(void);
+void HU_widget_draw_itc(void);
+
 void HU_widget_build_health_big(void);
 void HU_widget_draw_health_big(void);
 void HU_widget_build_armor_big(void);
@@ -1090,6 +1179,8 @@ static inline dboolean drawTimeSTSwidgets (void)
 static hud_widget_t hud_name_widget[] =
 {
   {&w_ammo,   0, 0, 0, HU_widget_build_ammo,   HU_widget_draw_ammo,   "ammo"},
+  {&w_rngindex,   0, 0, 0, HU_widget_build_rngindex,   HU_widget_draw_rngindex,   "rngindex"},
+  {&w_itc,   0, 0, 0, HU_widget_build_itc,   HU_widget_draw_itc,   "intercepts"},
   {&w_weapon, 0, 0, 0, HU_widget_build_weapon, HU_widget_draw_weapon, "weapon"},
   {&w_keys,   0, 0, 0, HU_widget_build_keys,   HU_widget_draw_keys,   "keys"},
   {&w_monsec, 0, 0, 0, HU_widget_build_monsec, HU_widget_draw_monsec, "monsec"},
@@ -1325,7 +1416,7 @@ int HU_GetAmmoColor(int ammo, int fullammo, int def, int tofire, dboolean backpa
 
   if (ammo < tofire)
     result = CR_BROWN;
-  else if ((ammo==fullammo) || 
+  else if ((ammo==fullammo) ||
     (ammo_colour_behaviour == ammo_colour_behaviour_no && backpack && ammo*2 >= fullammo))
     result=def;
   else {
@@ -1403,11 +1494,157 @@ void HU_widget_build_ammo(void)
     HUlib_addCharToTextLine(&w_ammo, *(s++));
 }
 
+#include "m_random.h"
+void HU_widget_build_rngindex(void)
+{
+  int i = 4;
+  char *s;
+  char idxstr[32];
+
+  // do the hud rng display
+  // clear the widgets internal line
+  HUlib_clearTextLine(&w_rngindex);
+  strcpy(hud_idxstr,"RNG ");
+
+  {
+    extern rng_t rng;
+    extern const unsigned char rndtable[256];
+    sprintf(idxstr, "%.3d %.3d", rng.rndindex, rndtable[rng.rndindex]);
+    hud_idxstr[i++] = 127;
+
+    hud_idxstr[i] = '\0';
+    strcat(hud_idxstr,idxstr);
+
+  }
+  // transfer the init string to the widget
+  s = hud_idxstr;
+  while (*s)
+    HUlib_addCharToTextLine(&w_rngindex, *(s++));
+}
+
+// static void bruteforce()
+// {
+//   static char finished = 0;
+//   static char first = 1;
+//   static char first_grainsize = 1;
+//   static int xa = FRACUNIT * -112;
+//   static int xb = FRACUNIT * -112;
+//   static int ya = FRACUNIT * 229 + 40001;
+//   static int yb = FRACUNIT * 239;
+//   static int aa = 191 << 24;
+//   static int ab = 193 << 24;
+  
+//   #define GRAINXSTART (FRACUNIT >> 8)
+//   #define GRAINYSTART (FRACUNIT >> 8)
+//   static int grainx = GRAINXSTART;
+//   static int grainy = GRAINYSTART;
+//   static int graina = 1 << 24;
+//   #define MINGRAINA FRACUNIT;
+//   // (most sig) grainy <- grainx <- y <- x <- ang (least sig)
+//   // ang has a constant granularity
+//   mobj_t *m = plr->mo;
+  
+//   if (first) {
+//     m->x = xa;
+//     m->y = ya - grainy;
+//     m->angle = aa - graina;
+//   } else if (!finished) {
+//     m->angle += graina;
+//     if (m->angle > ab) {
+//       m->angle = aa - graina;
+//       m->y += grainy * (first_grainsize ? 1 : 2);
+//       if (m->y > yb) {
+//         grainy >>= 1;
+//         first_grainsize = 0;
+//         m->y = ya - grainy;
+//         if (!grainy)
+//           finished = 1;
+//       }
+//     }
+//   }
+
+//   first = 0;
+// }
+
+#include "g_overflow.h"
+// #include "lprintf.h"
+void HU_widget_build_itc(void)
+{
+  #define SNAPTARGX (-112 * FRACUNIT)
+  #define SNAPTARGY (207 * FRACUNIT)
+  #define SNAPANGLE ((192 << 24) + (0 << 16))
+  // ?????????????????? deadass jammed  bruteforce here ????????????
+  // if(SNAPTARGX - 15*FRACUNIT < plr->mo->x && plr->mo->x < SNAPTARGX + 15*FRACUNIT &&
+  //   SNAPTARGY - 15*FRACUNIT < plr->mo->y && plr->mo->y < SNAPTARGY + 15*FRACUNIT)
+  // {
+  //   plr->mo->x = SNAPTARGX;
+  //   plr->mo->y = SNAPTARGY;
+  //   plr->mo->angle = SNAPANGLE;
+  // }
+  // if (leveltime > 35 * 5)
+  //   bruteforce();
+
+
+  int i = 4;
+  char *s;
+  char idxstr[32];
+
+  // do the hud rng display
+  // clear the widgets internal line
+  HUlib_clearTextLine(&w_itc);
+  const char* txt;
+  if (overflows[OVERFLOW_INTERCEPT].shit_happens)
+  {
+    // char report[64];
+    // sprintf("xdd: %d %d %d",);
+    // I_MessageBox(report, PRB_MB_OK);
+   // *((char*)0) = 'x';
+    txt = "OVF ";
+    w_itc.cm = CR_RED;
+  }
+  else
+  {
+    txt = "ITC ";
+    w_itc.cm = CR_GREEN;
+  }
+
+  strcpy(hud_idxstr, txt);
+
+  extern intercept_t *intercepts, *intercept_p;
+  extern int maxitcs;
+  static int maxpositiveitcs = 0;
+  if (maxitcs)
+    maxpositiveitcs = maxitcs;
+  sprintf(idxstr, "%4d %4d", maxpositiveitcs, (int)(intercept_p - intercepts));
+  maxitcs = 0; // reset, max is only max of every frame
+  hud_idxstr[i++] = 127;
+  hud_idxstr[i] = '\0';
+  strcat(hud_idxstr,idxstr);
+  s = hud_idxstr;
+  while (*s)
+    HUlib_addCharToTextLine(&w_itc, *(s++));
+}
+
+
+
 void HU_widget_draw_ammo(void)
 {
   // display the ammo widget every frame
   HUlib_drawTextLine(&w_ammo, false);
 }
+
+void HU_widget_draw_rngindex(void)
+{
+  // display the rngindex widget every frame
+  HUlib_drawTextLine(&w_rngindex, false);
+}
+
+void HU_widget_draw_itc(void)
+{
+  // display the intercepts widget every frame
+  HUlib_drawTextLine(&w_itc, false);
+}
+
 
 void HU_widget_build_health(void)
 {
@@ -2055,11 +2292,11 @@ void HU_widget_build_hudadd(void)
     static char demo_len_null[1]={0};
     char *demo_len = demoplayback && hudadd_demotime ? demo_len_st : demo_len_null;
     if (totalleveltimes)
-      sprintf(hud_add+strlen(hud_add),"\x1b\x32time \x1b\x35%d:%02d%s \x1b\x33%d:%05.2f ", 
-      (totalleveltimes+leveltime)/35/60, ((totalleveltimes+leveltime)%(60*35))/35, demo_len, 
+      sprintf(hud_add+strlen(hud_add),"\x1b\x32time \x1b\x35%d:%02d%s \x1b\x33%d:%05.2f ",
+      (totalleveltimes+leveltime)/35/60, ((totalleveltimes+leveltime)%(60*35))/35, demo_len,
       leveltime/35/60, (float)(leveltime%(60*35))/35);
     else
-      sprintf(hud_add+strlen(hud_add),"\x1b\x32time \x1b\x33%d:%05.2f%s ", 
+      sprintf(hud_add+strlen(hud_add),"\x1b\x32time \x1b\x33%d:%05.2f%s ",
       leveltime/35/60, (float)(leveltime%(60*35))/35, demo_len);
   }
   HUlib_clearTextLine(&w_hudadd);
@@ -2321,7 +2558,7 @@ void HU_draw_crosshair(void)
     fixed_t range, slope;
     angle_t an = plr->mo->angle;
     ammotype_t ammo = weaponinfo[plr->readyweapon].ammo;
-    
+
     // intercepts overflow guard
     overflows_enabled = false;
     range = (ammo == am_noammo) ? MELEERANGE : 16*64*FRACUNIT;
@@ -2377,6 +2614,22 @@ void HU_draw_crosshair(void)
   }
 }
 
+//bes: from dsda bc im familiar with the color
+#define THRESHOLD_1V ((int)(15.11f * FRACUNIT))
+#define THRESHOLD_2V ((int)(19.35f * FRACUNIT))
+#define THRESHOLD_3V ((int)(21.37f * FRACUNIT))
+static int HU_MomentumColor(fixed_t mom)
+{
+  if (mom < 0)
+    mom = -mom;
+  return
+    mom >= THRESHOLD_3V ? CR_RED :
+    mom >= THRESHOLD_2V ? CR_BLUE :
+    mom >= THRESHOLD_1V ? CR_GREEN :
+    CR_GRAY;
+}
+
+
 //
 // HU_Drawer()
 //
@@ -2398,55 +2651,95 @@ void HU_Drawer(void)
     return;
 
   plr = &players[displayplayer];         // killough 3/7/98
+
+      //jff 2/16/98 output new coord display
+    // x-coord
+  if (map_point_coordinates)
+  {
+
+    //e6y: speedup
+    if (!realframe)
+    {
+      HUlib_drawTextLine(&w_coordx, false);
+      HUlib_drawTextLine(&w_coordy, false);
+      HUlib_drawTextLine(&w_coordz, false);
+      HUlib_drawTextLine(&w_angle, false);
+      HUlib_drawTextLine(&w_coordmx, false); //bes: momenta
+      HUlib_drawTextLine(&w_coordmy, false);
+      HUlib_drawTextLine(&w_coordmz, false);
+    }
+    else
+    {
+      sprintf(hud_coordstrx,"X: %d.%d", (plr->mo->x)>>FRACBITS, (plr->mo->x) & (FRACUNIT - 1));
+      HUlib_clearTextLine(&w_coordx);
+      s = hud_coordstrx;
+      while (*s)
+        HUlib_addCharToTextLine(&w_coordx, *(s++));
+      HUlib_drawTextLine(&w_coordx, false);
+
+      //jff 3/3/98 split coord display into x,y,z lines
+      // y-coord
+      sprintf(hud_coordstry,"Y: %d.%d", (plr->mo->y)>>FRACBITS, (plr->mo->y) & (FRACUNIT - 1));
+      HUlib_clearTextLine(&w_coordy);
+      s = hud_coordstry;
+      while (*s)
+        HUlib_addCharToTextLine(&w_coordy, *(s++));
+      HUlib_drawTextLine(&w_coordy, false);
+
+      //jff 3/3/98 split coord display into x,y,z lines
+      //jff 2/22/98 added z
+      // z-coord
+      sprintf(hud_coordstrz,"Z: %d.%d", (plr->mo->z)>>FRACBITS, (plr->mo->z) & (FRACUNIT - 1));
+      HUlib_clearTextLine(&w_coordz);
+      s = hud_coordstrz;
+      while (*s)
+        HUlib_addCharToTextLine(&w_coordz, *(s++));
+      HUlib_drawTextLine(&w_coordz, false);
+
+      // angle
+      sprintf(hud_anglestr,"A: %u.%u", plr->mo->angle >> 24, (plr->mo->angle >> 16) & 0xff);
+      HUlib_clearTextLine(&w_angle);
+      s = hud_anglestr;
+      while (*s)
+        HUlib_addCharToTextLine(&w_angle, *(s++));
+      HUlib_drawTextLine(&w_angle, false);
+
+      // momenta
+      w_coordmx.cm = HU_MomentumColor(plr->mo->momx);
+      w_coordmy.cm = HU_MomentumColor(plr->mo->momy);
+      w_coordmz.cm = HU_MomentumColor(plr->mo->momz);
+
+
+      sprintf(hud_coordstrmx,"MX: %d.%d", (plr->mo->momx)>>FRACBITS, (plr->mo->momx) & (FRACUNIT - 1));
+      HUlib_clearTextLine(&w_coordmx);
+      s = hud_coordstrmx;
+      while (*s)
+        HUlib_addCharToTextLine(&w_coordmx, *(s++));
+      HUlib_drawTextLine(&w_coordmx, false);
+
+      sprintf(hud_coordstrmy,"MY: %d.%d", (plr->mo->momy)>>FRACBITS, (plr->mo->momy) & (FRACUNIT - 1));
+      HUlib_clearTextLine(&w_coordmy);
+      s = hud_coordstrmy;
+      while (*s)
+        HUlib_addCharToTextLine(&w_coordmy, *(s++));
+      HUlib_drawTextLine(&w_coordmy, false);
+
+      sprintf(hud_coordstrmz,"MZ: %d.%d", (plr->mo->momz)>>FRACBITS, (plr->mo->momz) & (FRACUNIT - 1));
+      HUlib_clearTextLine(&w_coordmz);
+      s = hud_coordstrmz;
+      while (*s)
+        HUlib_addCharToTextLine(&w_coordmz, *(s++));
+      HUlib_drawTextLine(&w_coordmz, false);
+    }
+  }
+
   // draw the automap widgets if automap is displayed
-  if (automapmode & am_active)
+  if (automapmode & am_active) // bes 01/19/24: always draw coord disp
   {
     if ((!(automapmode & am_overlay) || (viewheight != SCREENHEIGHT)) && !drawTimeSTSwidgets())
     {
       // map title
       HUlib_drawTextLine(&w_title, false);
-    }
-
-    //jff 2/16/98 output new coord display
-    // x-coord
-    if (map_point_coordinates)
-    {
-
-      //e6y: speedup
-      if (!realframe)
-      {
-        HUlib_drawTextLine(&w_coordx, false);
-        HUlib_drawTextLine(&w_coordy, false);
-        HUlib_drawTextLine(&w_coordz, false);
-      }
-      else
-      {
-        sprintf(hud_coordstrx,"X: %-5d", (plr->mo->x)>>FRACBITS);
-        HUlib_clearTextLine(&w_coordx);
-        s = hud_coordstrx;
-        while (*s)
-          HUlib_addCharToTextLine(&w_coordx, *(s++));
-        HUlib_drawTextLine(&w_coordx, false);
-
-        //jff 3/3/98 split coord display into x,y,z lines
-        // y-coord
-        sprintf(hud_coordstry,"Y: %-5d", (plr->mo->y)>>FRACBITS);
-        HUlib_clearTextLine(&w_coordy);
-        s = hud_coordstry;
-        while (*s)
-          HUlib_addCharToTextLine(&w_coordy, *(s++));
-        HUlib_drawTextLine(&w_coordy, false);
-
-        //jff 3/3/98 split coord display into x,y,z lines
-        //jff 2/22/98 added z
-        // z-coord
-        sprintf(hud_coordstrz,"Z: %-5d", (plr->mo->z)>>FRACBITS);
-        HUlib_clearTextLine(&w_coordz);
-        s = hud_coordstrz;
-        while (*s)
-          HUlib_addCharToTextLine(&w_coordz, *(s++));
-        HUlib_drawTextLine(&w_coordz, false);
-      }
     }
 
     if (map_level_stat)
@@ -2679,7 +2972,7 @@ void HU_Ticker(void)
       message_dontfuckwithme = 0;
     }
   }
-  
+
   // centered messages
   for (i = 0; i < MAXPLAYERS; i++)
   {
@@ -2688,7 +2981,7 @@ void HU_Ticker(void)
   }
   if (custom_message_p->msg)
   {
-    const char *s = custom_message_p->msg; 
+    const char *s = custom_message_p->msg;
     HUlib_clearTextLine(&w_centermsg);
     while (*s)
     {

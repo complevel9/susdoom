@@ -1216,7 +1216,7 @@ static void M_QuitResponse(int ch)
 {
   if (ch != 'y')
     return;
-  
+
   //e6y: Optional removal of a quit sound
   if ((!netgame && showendoom) // killough 12/98
       && !nosfxparm && snd_card) // avoid delay if no sound card
@@ -1243,17 +1243,19 @@ static void M_QuitResponse(int ch)
 
 void M_QuitDOOM(int choice)
 {
-  static char endstring[160];
+  I_SafeExit(0); // bes 05/17/24: idc
+  
+  // static char endstring[160];
 
   // We pick index 0 which is language sensitive,
   // or one at random, between 1 and maximum number.
   // Ty 03/27/98 - externalized DOSY as a string s_DOSY that's in the sprintf
-  if (language != english)
-    sprintf(endstring,"%s\n\n%s",s_DOSY, endmsg[0] );
-  else         // killough 1/18/98: fix endgame message calculation:
-    sprintf(endstring,"%s\n\n%s", endmsg[gametic%(NUM_QUITMESSAGES-1)+1], s_DOSY);
+  // if (language != english)
+  //   sprintf(endstring,"%s\n\n%s",s_DOSY, endmsg[0] );
+  // else         // killough 1/18/98: fix endgame message calculation:
+  //   sprintf(endstring,"%s\n\n%s", endmsg[gametic%(NUM_QUITMESSAGES-1)+1], s_DOSY);
 
-  M_StartMessage(endstring,M_QuitResponse,true);
+  // M_StartMessage(endstring,M_QuitResponse,true);
 }
 
 /////////////////////////////
@@ -2353,7 +2355,7 @@ static void M_DrawInstructions(void)
     case S_FILE:
       M_DrawStringCentered(160, 20, CR_SELECT, "Type/edit filename and Press ENTER");
       break;
-    case S_CHOICE: 
+    case S_CHOICE:
       M_DrawStringCentered(160, 20, CR_SELECT, "Press left or right to choose");
       break;
     case S_RESET:
@@ -2832,7 +2834,7 @@ setup_menu_t stat_settings1[] =  // Status Bar and HUD Settings screen
   {"ARMOR GOOD/EXTRA"  ,S_NUM       ,m_null,SB_X,SB_Y+13*8, {"armor_green"}},
   {"AMMO LOW/OK"       ,S_NUM       ,m_null,SB_X,SB_Y+14*8, {"ammo_red"}},
   {"AMMO OK/GOOD"      ,S_NUM       ,m_null,SB_X,SB_Y+15*8, {"ammo_yellow"}},
-  {"BACKPACK CHANGES THRESHOLDS",S_CHOICE,m_null,SB_X,SB_Y+16*8, 
+  {"BACKPACK CHANGES THRESHOLDS",S_CHOICE,m_null,SB_X,SB_Y+16*8,
    {"ammo_colour_behaviour"},0,0,NULL,ammo_colour_behaviour_list},
 
   // Button for resetting to defaults
@@ -2942,17 +2944,18 @@ setup_menu_t auto_settings1[] =  // 1st AutoMap Settings screen
   {"Show coordinates of automap pointer",     S_YESNO,m_null,AU_X,AU_Y+1*8, {"map_point_coord"}},  // killough 10/98
   {"Show Secrets only after entering",        S_YESNO,m_null,AU_X,AU_Y+2*8, {"map_secret_after"}},
   {"Update unexplored parts in automap mode", S_YESNO,m_null,AU_X,AU_Y+3*8, {"map_always_updates"}},
-  {"Grid cell size 8..256, -1 for autosize",  S_NUM,  m_null,AU_X,AU_Y+4*8, {"map_grid_size"}, 0, 0, M_ChangeMapGridSize},
-  {"Scroll / Zoom speed  (1..32)",            S_NUM,  m_null,AU_X,AU_Y+5*8, {"map_scroll_speed"}},
-  {"Use mouse wheel for zooming",             S_YESNO,m_null,AU_X,AU_Y+6*8, {"map_wheel_zoom"}},
-  {"Apply multisampling",                     S_YESNO,m_null,AU_X,AU_Y+7*8, {"map_use_multisamling"}, 0, 0, M_ChangeMapMultisamling},
+  {"Grid cell size 1..256, -1 for autosize",  S_NUM,  m_null,AU_X,AU_Y+4*8, {"map_grid_size"}, 0, 0, M_ChangeMapGridSize},
+  {"Limit grid to blockmap size",             S_YESNO,m_null,AU_X,AU_Y+5*8, {"map_grid_blimit"}},
+  {"Scroll / Zoom speed  (1..128)",           S_NUM,  m_null,AU_X,AU_Y+6*8, {"map_scroll_speed"}},
+  {"Use mouse wheel for zooming",             S_YESNO,m_null,AU_X,AU_Y+7*8, {"map_wheel_zoom"}},
+  {"Apply multisampling",                     S_YESNO,m_null,AU_X,AU_Y+8*8, {"map_use_multisamling"}, 0, 0, M_ChangeMapMultisamling},
 #ifdef GL_DOOM
-  {"Enable textured display",                 S_YESNO,m_null,AU_X,AU_Y+8*8, {"map_textured"}, 0, 0, M_ChangeMapTextured},
-  {"Things appearance",                       S_CHOICE,m_null,AU_X,AU_Y+9*8, {"map_things_appearance"}, 0, 0, NULL, map_things_appearance_list},
-  {"Translucency percentage",                 S_SKIP|S_TITLE,m_null,AU_X,AU_Y+10*8},
-  {"Textured automap",                        S_NUM,  m_null,AU_X,AU_Y+11*8, {"map_textured_trans"}},
-  {"Textured automap in overlay mode",        S_NUM,  m_null,AU_X,AU_Y+12*8, {"map_textured_overlay_trans"}},
-  {"Lines in overlay mode",                   S_NUM,  m_null,AU_X,AU_Y+13*8, {"map_lines_overlay_trans"}},
+  {"Enable textured display",                 S_YESNO,m_null,AU_X,AU_Y+9*8, {"map_textured"}, 0, 0, M_ChangeMapTextured},
+  {"Things appearance",                       S_CHOICE,m_null,AU_X,AU_Y+10*8, {"map_things_appearance"}, 0, 0, NULL, map_things_appearance_list},
+  {"Translucency percentage",                 S_SKIP|S_TITLE,m_null,AU_X,AU_Y+11*8},
+  {"Textured automap",                        S_NUM,  m_null,AU_X,AU_Y+12*8, {"map_textured_trans"}},
+  {"Textured automap in overlay mode",        S_NUM,  m_null,AU_X,AU_Y+13*8, {"map_textured_overlay_trans"}},
+  {"Lines in overlay mode",                   S_NUM,  m_null,AU_X,AU_Y+14*8, {"map_lines_overlay_trans"}},
 #endif
 
   // Button for resetting to defaults
@@ -3273,7 +3276,7 @@ setup_menu_t gen_settings1[] = { // General Settings screen1
   {"Fullscreen Video mode",          S_YESNO,            m_null, G_X, G_Y+ 5*8, {"use_fullscreen"}, 0, 0, M_ChangeFullScreen},
   {"Status Bar and Menu Appearance", S_CHOICE,           m_null, G_X, G_Y+ 6*8, {"render_stretch_hud"}, 0, 0, M_ChangeStretch, render_stretch_list},
   {"Vertical Sync",                  S_YESNO,            m_null, G_X, G_Y+ 7*8, {"render_vsync"}, 0, 0, M_ChangeVideoMode},
-  
+
   {"Enable Translucency",            S_YESNO,            m_null, G_X, G_Y+ 9*8, {"translucency"}, 0, 0, M_Trans},
   {"Translucency filter percentage", S_NUM,              m_null, G_X, G_Y+10*8, {"tran_filter_pct"}, 0, 0, M_Trans},
   {"Uncapped Framerate",             S_YESNO,            m_null, G_X, G_Y+11*8, {"uncapped_framerate"}, 0, 0, M_ChangeUncappedFrameRate},
@@ -3329,7 +3332,7 @@ setup_menu_t gen_settings2[] = { // General Settings screen2
   {"Enable Joystick",                  S_YESNO, m_null, G_X, G_Y+ 3*8, {"use_joystick"}},
 
   {"Files Preloaded at Game Startup",  S_SKIP|S_TITLE, m_null, G_X, G_Y + 5*8},
-  {"WAD # 1",                          S_FILE, m_null, GF_X, G_Y+ 6*8, {"wadfile_1"}}, 
+  {"WAD # 1",                          S_FILE, m_null, GF_X, G_Y+ 6*8, {"wadfile_1"}},
   {"WAD #2",                           S_FILE, m_null, GF_X, G_Y+ 7*8, {"wadfile_2"}},
   {"DEH/BEX # 1",                      S_FILE, m_null, GF_X, G_Y+ 8*8, {"dehfile_1"}},
   {"DEH/BEX #2",                       S_FILE, m_null, GF_X, G_Y+ 9*8, {"dehfile_2"}},
@@ -3391,7 +3394,7 @@ setup_menu_t gen_settings4[] = { // General Settings screen3
   {"Drawing of patch edges",     S_CHOICE, m_null, G_X, G_Y+ 9*8, {"patch_edges"}, 0, 0, NULL, edgetypes},
   {"Flashing HOM indicator",     S_YESNO,  m_null, G_X, G_Y+10*8, {"flashing_hom"}},
 
-  // prboom-plus 
+  // prboom-plus
   {"Wipe Screen Effect",         S_YESNO,  m_null, G_X, G_Y+12*8, {"render_wipescreen"}},
   {"Change Palette On Pain",     S_YESNO,  m_null, G_X, G_Y+14*8, {"palette_ondamage"}, 0, 0, M_ChangeApplyPalette},
   {"Change Palette On Bonus",    S_YESNO,  m_null, G_X, G_Y+15*8, {"palette_onbonus"}, 0, 0, M_ChangeApplyPalette},
@@ -3474,7 +3477,7 @@ setup_menu_t gen_settings7[] =
 static const char *gltexfilters[] = {
   "None", "Linear", "Nearest Mipmap", "Linear Mipmap", "Bilinear", "Trilinear", NULL};
 
-static const char *gltexfilters_anisotropics[] = 
+static const char *gltexfilters_anisotropics[] =
   {"Off", "2x", "4x", "8x", "16x", NULL};
 
 setup_menu_t gen_settings8[] = { // General Settings screen4
@@ -4883,8 +4886,8 @@ dboolean M_Responder (event_t* ev) {
           useglgamma++;
           if (useglgamma > MAX_GLGAMMA)
             useglgamma = 0;
-          sprintf(str, "Gamma correction level %d", useglgamma); 
-          players[consoleplayer].message = str; 
+          sprintf(str, "Gamma correction level %d", useglgamma);
+          players[consoleplayer].message = str;
 
           gld_SetGammaRamp(useglgamma);
         }
@@ -4925,7 +4928,7 @@ dboolean M_Responder (event_t* ev) {
       }
 
     //e6y
-    if (ch == key_speed_default && (!netgame||demoplayback))               
+    if (ch == key_speed_default && (!netgame||demoplayback))
     {
       realtic_clock_rate = StepwiseSum(realtic_clock_rate, 0, speed_step, 3, 10000, 100);
       I_Init2();
@@ -4966,7 +4969,7 @@ dboolean M_Responder (event_t* ev) {
       if (G_ReloadLevel())
         return true;
     }
- 
+
     if (ch == key_demo_endlevel)
     {
       if (demoplayback && !doSkip && singledemo)
@@ -5149,7 +5152,7 @@ dboolean M_Responder (event_t* ev) {
 
       if (ptr1->action)      // killough 10/98
         ptr1->action();
-      
+
       //e6y
 #ifdef GL_DOOM
       {
@@ -5246,7 +5249,7 @@ dboolean M_Responder (event_t* ev) {
     if (ch == key_menu_left) {
       if (ptr1->var.def->type == def_int) {
         int value = *ptr1->var.def->location.pi;
-      
+
         value = value - 1;
         if ((ptr1->var.def->minvalue != UL &&
              value < ptr1->var.def->minvalue))
@@ -5274,7 +5277,7 @@ dboolean M_Responder (event_t* ev) {
     if (ch == key_menu_right) {
       if (ptr1->var.def->type == def_int) {
         int value = *ptr1->var.def->location.pi;
-      
+
         value = value + 1;
         if ((ptr1->var.def->minvalue != UL &&
              value < ptr1->var.def->minvalue))
@@ -6373,7 +6376,7 @@ void M_Init(void)
 
   M_InitHelpScreen();   // init the help screen       // phares 4/08/98
   M_InitExtendedHelp(); // init extended help screens // phares 3/30/98
-  
+
   //e6y
   M_ChangeSpeed();
   M_ChangeMaxViewPitch();
