@@ -1610,8 +1610,6 @@ const char* doomverstr = NULL;
 
 int warpepisode = -1, warpmap = -1;
 
-int flot31prx;
-
 static void D_DoomMainSetup(void)
 {
   int p,slot;
@@ -1928,8 +1926,6 @@ static void D_DoomMainSetup(void)
       }
     }
   
-  flot31prx = M_CheckParm("-flot31prx"); // bes 08/04/24 flotsam31prx
-
   if (!(p = M_CheckParm("-playdemo")) || p >= myargc-1) {   /* killough */
     if ((p = M_CheckParm ("-fastdemo")) && p < myargc-1)    /* killough */
       fastdemo = true;             // run at fastest speed possible
