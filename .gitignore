@@ -3,14 +3,14 @@ CMakeCache.txt
 Makefile
 cmake_install.cmake
 
-*/build*
+/*build*
 /dependencies*
-/prboom2/ICONS/icons.aps
-/prboom2/ImportExecutables.cmake
-/prboom2/release
-/prboom2/arch.c
-/prboom2/config.h
-/prboom2/data/rdatawad
-/prboom2/prboom-plus
-/prboom2/prboom-plus-game-server
-/prboom2/prboom-plus.wad
+/ICONS/icons.aps
+/ImportExecutables.cmake
+/release
+/arch.c
+/config.h
+/data/rdatawad
+/prboom-plus
+/prboom-plus-game-server
+/prboom-plus.wad
