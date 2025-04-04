@@ -1,6 +1,3 @@
-#ifndef HEADER_DEFF56E1A870C82C
-#define HEADER_DEFF56E1A870C82C
-
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
@@ -124,5 +121,3 @@ extern amrecttrace_t amrecttraces[NUMAMRECTTRACES];
 extern unsigned int cur_amrecttrace;
 
 #endif  /* __P_MAPUTL__ */
-#endif // header guard
-

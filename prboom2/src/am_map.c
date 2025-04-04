@@ -1957,7 +1957,7 @@ static void AM_DrawNiceThings(void)
     if (playeringame[i])
     {
       t = players[i].mo;
-      (t, &p, &angle);
+      AM_GetMobjPosition(t, &p, &angle);
       if (automapmode & am_rotate)
         AM_rotatePoint(&p);
       else

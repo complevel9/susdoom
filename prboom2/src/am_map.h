@@ -1,6 +1,3 @@
-#ifndef HEADER_DEF9D2CCD8DB9776
-#define HEADER_DEF9D2CCD8DB9776
-
 /* Emacs style mode select   -*- C++ -*-
  *-----------------------------------------------------------------------------
  *
@@ -191,5 +188,3 @@ extern map_things_appearance_t map_things_appearance;
 extern const char *map_things_appearance_list[];
 
 #endif
-#endif // header guard
-
