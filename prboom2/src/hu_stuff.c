@@ -1522,50 +1522,6 @@ void HU_widget_build_rngindex(void)
     HUlib_addCharToTextLine(&w_rngindex, *(s++));
 }
 
-// static void bruteforce()
-// {
-//   static char finished = 0;
-//   static char first = 1;
-//   static char first_grainsize = 1;
-//   static int xa = FRACUNIT * -112;
-//   static int xb = FRACUNIT * -112;
-//   static int ya = FRACUNIT * 229 + 40001;
-//   static int yb = FRACUNIT * 239;
-//   static int aa = 191 << 24;
-//   static int ab = 193 << 24;
-  
-//   #define GRAINXSTART (FRACUNIT >> 8)
-//   #define GRAINYSTART (FRACUNIT >> 8)
-//   static int grainx = GRAINXSTART;
-//   static int grainy = GRAINYSTART;
-//   static int graina = 1 << 24;
-//   #define MINGRAINA FRACUNIT;
-//   // (most sig) grainy <- grainx <- y <- x <- ang (least sig)
-//   // ang has a constant granularity
-//   mobj_t *m = plr->mo;
-  
-//   if (first) {
-//     m->x = xa;
-//     m->y = ya - grainy;
-//     m->angle = aa - graina;
-//   } else if (!finished) {
-//     m->angle += graina;
-//     if (m->angle > ab) {
-//       m->angle = aa - graina;
-//       m->y += grainy * (first_grainsize ? 1 : 2);
-//       if (m->y > yb) {
-//         grainy >>= 1;
-//         first_grainsize = 0;
-//         m->y = ya - grainy;
-//         if (!grainy)
-//           finished = 1;
-//       }
-//     }
-//   }
-
-//   first = 0;
-// }
-
 #include "g_overflow.h"
 // #include "lprintf.h"
 void HU_widget_build_itc(void)
@@ -1573,17 +1529,6 @@ void HU_widget_build_itc(void)
   #define SNAPTARGX (-112 * FRACUNIT)
   #define SNAPTARGY (207 * FRACUNIT)
   #define SNAPANGLE ((192 << 24) + (0 << 16))
-  // ?????????????????? deadass jammed  bruteforce here ????????????
-  // if(SNAPTARGX - 15*FRACUNIT < plr->mo->x && plr->mo->x < SNAPTARGX + 15*FRACUNIT &&
-  //   SNAPTARGY - 15*FRACUNIT < plr->mo->y && plr->mo->y < SNAPTARGY + 15*FRACUNIT)
-  // {
-  //   plr->mo->x = SNAPTARGX;
-  //   plr->mo->y = SNAPTARGY;
-  //   plr->mo->angle = SNAPANGLE;
-  // }
-  // if (leveltime > 35 * 5)
-  //   bruteforce();
-
 
   int i = 4;
   char *s;
