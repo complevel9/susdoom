@@ -328,6 +328,11 @@ void HU_Init(void)
 			sprintf(buffer, "STCFN%.3d", j);
 			R_SetPatchNum(&hu_font[i], buffer);
 		}
+		else if (j == '+')
+		{
+			R_SetPatchNum(&hu_font2[i], "DIG43");
+			R_SetPatchNum(&hu_font[i], "STCFN043");
+		}
 		else if (j == '-')
 		{
 			R_SetPatchNum(&hu_font2[i], "DIG45");

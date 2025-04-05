@@ -117,6 +117,7 @@ set(GRAPHICS
     graphics/digx.ppm
     graphics/digy.ppm
     graphics/digz.ppm
+    graphics/dig43.ppm
     graphics/dig45.ppm
     graphics/dig46.ppm
     graphics/dig47.ppm
