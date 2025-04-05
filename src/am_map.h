@@ -43,13 +43,13 @@
 
 typedef struct map_point_s
 {
-  float x, y;
-  unsigned char r, g, b, a;
+	float x, y;
+	unsigned char r, g, b, a;
 } PACKEDATTR map_point_t;
 
 typedef struct map_line_s
 {
-  map_point_t point[2];
+	map_point_t point[2];
 } PACKEDATTR map_line_t;
 
 extern array_t map_lines;
@@ -63,24 +63,24 @@ extern array_t map_lines;
 #define AM_MSGEXITED (AM_MSGHEADER | ('x'<<8))
 
 // Called by main loop.
-dboolean AM_Responder (event_t* ev);
+dboolean AM_Responder(event_t *ev);
 
 // Called by main loop.
-void AM_Ticker (void);
+void AM_Ticker(void);
 
 // Called by main loop,
 // called instead of view drawer if automap active.
-void AM_Drawer (void);
+void AM_Drawer(void);
 
 // Called to force the automap to quit
 // if the level is completed while it is up.
-void AM_Stop (void);
+void AM_Stop(void);
 
 // killough 2/22/98: for saving automap information in savegame:
 
 void AM_Start(void);
 
-//jff 4/16/98 make externally available
+// jff 4/16/98 make externally available
 
 void AM_clearMarks(void);
 
@@ -90,17 +90,17 @@ void AM_SetResolution(void);
 
 typedef struct
 {
- fixed_t x,y;
- float fx,fy;
+	fixed_t x, y;
+	float fx, fy;
 } mpoint_t;
 
 typedef struct
 {
- fixed_t x, y;
- fixed_t w, h;
+	fixed_t x, y;
+	fixed_t w, h;
 
- char label[16];
- int widths[16];
+	char label[16];
+	int widths[16];
 } markpoint_t;
 
 extern markpoint_t *markpoints;
@@ -110,7 +110,7 @@ extern int markpointnum, markpointnum_max;
 
 // killough 5/2/98: moved from m_misc.c
 
-//jff 1/7/98 automap colors added
+// jff 1/7/98 automap colors added
 extern int mapcolor_back;     // map background
 extern int mapcolor_grid;     // grid lines color
 extern int mapcolor_wall;     // normal 1s wall color
@@ -125,7 +125,7 @@ extern int mapcolor_bdor;     // blue door color (of enabling one not other)
 extern int mapcolor_ydor;     // yellow door color
 extern int mapcolor_tele;     // teleporter line color
 extern int mapcolor_secr;     // secret sector boundary color
-//jff 4/23/98
+// jff 4/23/98
 extern int mapcolor_exit;     // exit line
 extern int mapcolor_unsn;     // computer map unseen line color
 extern int mapcolor_flat;     // line with no floor/ceiling changes
@@ -137,7 +137,7 @@ extern int mapcolor_hair;     // crosshair color
 extern int mapcolor_sngl;     // single player arrow color
 extern int mapcolor_plyr[4];  // colors for players in multiplayer
 extern int mapcolor_me;       // consoleplayer's chosen colour
-//jff 3/9/98
+// jff 3/9/98
 extern int map_secret_after;  // secrets do not appear til after bagged
 
 extern int map_always_updates;
@@ -162,27 +162,27 @@ void M_ChangeMapMultisamling(void);
 
 typedef struct am_frame_s
 {
-  fixed_t centerx, centery;
-  fixed_t sin, cos;
+	fixed_t centerx, centery;
+	fixed_t sin, cos;
 
-  float centerx_f, centery_f;
-  float sin_f, cos_f;
+	float centerx_f, centery_f;
+	float sin_f, cos_f;
 
-  fixed_t bbox[4];
+	fixed_t bbox[4];
 
-  int precise;
+	int precise;
 } am_frame_t;
 extern am_frame_t am_frame;
 
 typedef enum
 {
-  map_things_appearance_classic,
-  map_things_appearance_scaled,
+	map_things_appearance_classic,
+	map_things_appearance_scaled,
 #if defined(HAVE_LIBSDL2_IMAGE) && defined(GL_DOOM)
-  map_things_appearance_icon,
+	map_things_appearance_icon,
 #endif
 
-  map_things_appearance_max
+	map_things_appearance_max
 } map_things_appearance_t;
 extern map_things_appearance_t map_things_appearance;
 extern const char *map_things_appearance_list[];

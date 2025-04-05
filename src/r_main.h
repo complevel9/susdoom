@@ -47,24 +47,24 @@ extern int r_frame_count;
 // POV related.
 //
 
-extern fixed_t  viewcos;
-extern fixed_t  viewsin;
-extern fixed_t  viewtancos;
-extern fixed_t  viewtansin;
-extern int      viewwidth;
-extern int      viewheight;
-extern int      viewwindowx;
-extern int      viewwindowy;
-extern int      centerx;
-extern int      centery;
-extern fixed_t  globaluclip;
-extern fixed_t  globaldclip;
-extern fixed_t  centerxfrac;
-extern fixed_t  centeryfrac;
-extern fixed_t  yaspectmul;
-extern fixed_t  viewheightfrac; //e6y: for correct cliping of things
-extern fixed_t  projection;
-extern fixed_t  skyiscale;
+extern fixed_t viewcos;
+extern fixed_t viewsin;
+extern fixed_t viewtancos;
+extern fixed_t viewtansin;
+extern int viewwidth;
+extern int viewheight;
+extern int viewwindowx;
+extern int viewwindowy;
+extern int centerx;
+extern int centery;
+extern fixed_t globaluclip;
+extern fixed_t globaldclip;
+extern fixed_t centerxfrac;
+extern fixed_t centeryfrac;
+extern fixed_t yaspectmul;
+extern fixed_t viewheightfrac; // e6y: for correct cliping of things
+extern fixed_t projection;
+extern fixed_t skyiscale;
 // e6y: wide-res
 extern int wide_centerx;
 extern int wide_offsetx;
@@ -74,8 +74,8 @@ extern int wide_offset2y;
 #define RMUL (1.6f/1.333333f)
 
 // proff 11/06/98: Added for high-res
-extern fixed_t  projectiony;
-extern int      validcount;
+extern fixed_t projectiony;
+extern int validcount;
 // e6y: Added for more precise flats drawing
 extern fixed_t viewfocratio;
 
@@ -97,8 +97,8 @@ extern dboolean rendering_stats;
 // SoM: I am really speechless at this... just... why?
 // Lighting in doom was originally clamped off to just 16 brightness levels
 // for sector lighting. Simply changing the constants is enough to change this
-// it seriously bottles the mind why this wasn't done in doom from the start 
-// except for maybe memory usage savings. 
+// it seriously bottles the mind why this wasn't done in doom from the start
+// except for maybe memory usage savings.
 #define LIGHTLEVELS_MAX   32
 
 extern int LIGHTSEGSHIFT;
@@ -123,12 +123,12 @@ extern int numcolormaps;    // killough 4/4/98: dynamic number of maps
 extern const lighttable_t **colormaps;
 // killough 3/20/98, 4/4/98: end dynamic colormaps
 
-//e6y: for Boom colormaps in OpenGL mode
+// e6y: for Boom colormaps in OpenGL mode
 extern dboolean use_boom_cm;
 extern int boom_cm;         // current colormap
 extern int frame_fixedcolormap;
 
-extern int          extralight;
+extern int extralight;
 extern const lighttable_t *fixedcolormap;
 
 // Number of diminishing brightness levels.
@@ -147,7 +147,7 @@ PUREFUNC int R_PointOnSegSide(fixed_t x, fixed_t y, const seg_t *line);
 angle_t R_PointToAngle2(fixed_t x1, fixed_t y1, fixed_t x, fixed_t y);
 subsector_t *R_PointInSubsector(fixed_t x, fixed_t y);
 
-//e6y: made more precise
+// e6y: made more precise
 angle_t R_PointToAngleEx(fixed_t x, fixed_t y);
 angle_t R_PointToAngleEx2(fixed_t x1, fixed_t y1, fixed_t x, fixed_t y);
 angle_t R_PointToPseudoAngle(fixed_t x, fixed_t y);
@@ -161,7 +161,7 @@ extern int r_have_internal_hires;
 void R_RenderPlayerView(player_t *player);   // Called by G_Drawer.
 void R_Init(void);                           // Called by startup code.
 void R_SetViewSize(int blocks);              // Called by M_Responder.
-void R_ExecuteSetViewSize(void);             // cph - called by D_Display to complete a view resize
+void R_ExecuteSetViewSize(void); // cph - called by D_Display to complete a view resize
 
 void R_ShowStats(void);
 void R_ClearStats(void);

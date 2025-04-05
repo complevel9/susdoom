@@ -65,7 +65,7 @@ void HU_Init(void);
 void HU_LoadHUDDefs(void);
 void HU_Start(void);
 
-dboolean HU_Responder(event_t* ev);
+dboolean HU_Responder(event_t *ev);
 
 void HU_Ticker(void);
 void HU_Drawer(void);
@@ -97,26 +97,26 @@ extern int huds_count;
 
 typedef struct custom_message_s
 {
-  int ticks;
-  int cm;
-  int sfx;
-  const char *msg;
+	int ticks;
+	int cm;
+	int sfx;
+	const char *msg;
 } custom_message_t;
 
 typedef struct message_thinker_s
 {
-  thinker_t thinker;
-  int plr;
-  int delay;
-  custom_message_t msg;
+	thinker_t thinker;
+	int plr;
+	int delay;
+	custom_message_t msg;
 } message_thinker_t;
 
 typedef struct crosshair_s
 {
-  int lump;
-  int w, h, flags;
-  int target_x, target_y, target_z, target_sprite;
-  float target_screen_x, target_screen_y;
+	int lump;
+	int w, h, flags;
+	int target_x, target_y, target_z, target_sprite;
+	float target_screen_x, target_screen_y;
 } crosshair_t;
 extern crosshair_t crosshair;
 

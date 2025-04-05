@@ -39,11 +39,9 @@
 
 
 // killough 1/18/98: remove hardcoded limit, add const:
-const char *const endmsg[]=
-{
+const char *const endmsg[] = {
   // DOOM1
-  QUITMSG,
-  "please don't leave, there's more\ndemons to toast!",
+  QUITMSG, "please don't leave, there's more\ndemons to toast!",
   "let's beat it -- this is turning\ninto a bloodbath!",
   "i wouldn't leave if i were you.\ndos is much worse.",
   "you're trying to say you like dos\nbetter than me, right?",
@@ -82,4 +80,4 @@ const char *const endmsg[]=
 };
 
 // killough 1/18/98: remove hardcoded limit and replace with var (silly hack):
-const size_t NUM_QUITMESSAGES = sizeof(endmsg)/sizeof(*endmsg) - 1;
+const size_t NUM_QUITMESSAGES = sizeof(endmsg) / sizeof(*endmsg) - 1;

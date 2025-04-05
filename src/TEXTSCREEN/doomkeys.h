@@ -1,4 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
+// Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
 // Copyright(C) 1993-1996 Id Software, Inc.
@@ -97,4 +97,3 @@
 #define KEYP_ENTER      KEY_ENTER
 
 #endif          // __DOOMKEYS__
-

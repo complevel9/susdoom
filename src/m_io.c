@@ -20,14 +20,14 @@
 #include <errno.h>
 
 #ifdef _WIN32
-  #define WIN32_LEAN_AND_MEAN
-  #include <windows.h>
-  #include <io.h>
-  #include <direct.h>
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#include <io.h>
+#include <direct.h>
 #else
-  #include <sys/types.h>
-  #include <unistd.h>
-  #include <fcntl.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <fcntl.h>
 #endif
 
 #include <sys/stat.h>
@@ -38,340 +38,305 @@
 #ifdef _WIN32
 static wchar_t *ConvertMultiByteToWide(const char *str, UINT code_page)
 {
-    wchar_t *wstr = NULL;
-    int wlen = 0;
+	wchar_t *wstr = NULL;
+	int wlen = 0;
 
-    wlen = MultiByteToWideChar(code_page, 0, str, -1, NULL, 0);
+	wlen = MultiByteToWideChar(code_page, 0, str, -1, NULL, 0);
 
-    if (!wlen)
-    {
-        errno = EINVAL;
-        lprintf(LO_INFO, "Warning: Failed to convert path to wide encoding\n");
-        return NULL;
-    }
+	if (!wlen)
+	{
+		errno = EINVAL;
+		lprintf(LO_INFO, "Warning: Failed to convert path to wide encoding\n");
+		return NULL;
+	}
 
-    wstr = malloc(sizeof(wchar_t) * wlen);
+	wstr = malloc(sizeof(wchar_t) * wlen);
 
-    if (!wstr)
-    {
-        lprintf(LO_INFO, "ConvertMultiByteToWide: Failed to allocate new string\n");
-        return NULL;
-    }
+	if (!wstr)
+	{
+		lprintf(LO_INFO, "ConvertMultiByteToWide: Failed to allocate new string\n");
+		return NULL;
+	}
 
-    if (MultiByteToWideChar(code_page, 0, str, -1, wstr, wlen) == 0)
-    {
-        errno = EINVAL;
-        lprintf(LO_INFO, "Warning: Failed to convert path to wide encoding\n");
-        free(wstr);
-        return NULL;
-    }
+	if (MultiByteToWideChar(code_page, 0, str, -1, wstr, wlen) == 0)
+	{
+		errno = EINVAL;
+		lprintf(LO_INFO, "Warning: Failed to convert path to wide encoding\n");
+		free(wstr);
+		return NULL;
+	}
 
-    return wstr;
+	return wstr;
 }
 
 static char *ConvertWideToMultiByte(const wchar_t *wstr, UINT code_page)
 {
-    char *str = NULL;
-    int len = 0;
+	char *str = NULL;
+	int len = 0;
 
-    len = WideCharToMultiByte(code_page, 0, wstr, -1, NULL, 0, NULL, NULL);
+	len = WideCharToMultiByte(code_page, 0, wstr, -1, NULL, 0, NULL, NULL);
 
-    if (!len)
-    {
-        errno = EINVAL;
-        lprintf(LO_INFO, "Warning: Failed to convert path to multi byte encoding\n");
-        return NULL;
-    }
+	if (!len)
+	{
+		errno = EINVAL;
+		lprintf(LO_INFO, "Warning: Failed to convert path to multi byte encoding\n");
+		return NULL;
+	}
 
-    str = malloc(sizeof(char) * len);
+	str = malloc(sizeof(char) * len);
 
-    if (!str)
-    {
-        lprintf(LO_INFO, "ConvertWideToMultiByte: Failed to allocate new string\n");
-        return NULL;
-    }
+	if (!str)
+	{
+		lprintf(LO_INFO, "ConvertWideToMultiByte: Failed to allocate new string\n");
+		return NULL;
+	}
 
-    if (WideCharToMultiByte(code_page, 0, wstr, -1, str, len, NULL, NULL) == 0)
-    {
-        errno = EINVAL;
-        lprintf(LO_INFO, "Warning: Failed to convert path to multi byte encoding\n");
-        free(str);
-        return NULL;
-    }
+	if (WideCharToMultiByte(code_page, 0, wstr, -1, str, len, NULL, NULL) == 0)
+	{
+		errno = EINVAL;
+		lprintf(LO_INFO, "Warning: Failed to convert path to multi byte encoding\n");
+		free(str);
+		return NULL;
+	}
 
-    return str;
+	return str;
 }
 
-static wchar_t *ConvertUtf8ToWide(const char *str)
-{
-    return ConvertMultiByteToWide(str, CP_UTF8);
-}
+static wchar_t *ConvertUtf8ToWide(const char *str) { return ConvertMultiByteToWide(str, CP_UTF8); }
 
 static char *ConvertWideToUtf8(const wchar_t *wstr)
 {
-    return ConvertWideToMultiByte(wstr, CP_UTF8);
+	return ConvertWideToMultiByte(wstr, CP_UTF8);
 }
 
 static wchar_t *ConvertSysNativeMBToWide(const char *str)
 {
-    return ConvertMultiByteToWide(str, CP_ACP);
+	return ConvertMultiByteToWide(str, CP_ACP);
 }
 
 static char *ConvertWideToSysNativeMB(const wchar_t *wstr)
 {
-    return ConvertWideToMultiByte(wstr, CP_ACP);
+	return ConvertWideToMultiByte(wstr, CP_ACP);
 }
 #endif
 
 char *M_ConvertSysNativeMBToUtf8(const char *str)
 {
 #ifdef _WIN32
-    char *ret = NULL;
-    wchar_t *wstr = NULL;
+	char *ret = NULL;
+	wchar_t *wstr = NULL;
 
-    wstr = ConvertSysNativeMBToWide(str);
+	wstr = ConvertSysNativeMBToWide(str);
 
-    if (!wstr)
-    {
-        return NULL;
-    }
+	if (!wstr) return NULL;
 
-    ret = ConvertWideToUtf8(wstr);
+	ret = ConvertWideToUtf8(wstr);
 
-    free(wstr);
+	free(wstr);
 
-    return ret;
+	return ret;
 #else
-    return strdup(str);
+	return strdup(str);
 #endif
 }
 
 char *M_ConvertUtf8ToSysNativeMB(const char *str)
 {
 #ifdef _WIN32
-    char *ret = NULL;
-    wchar_t *wstr = NULL;
+	char *ret = NULL;
+	wchar_t *wstr = NULL;
 
-    wstr = ConvertUtf8ToWide(str);
+	wstr = ConvertUtf8ToWide(str);
 
-    if (!wstr)
-    {
-        return NULL;
-    }
+	if (!wstr) return NULL;
 
-    ret = ConvertWideToSysNativeMB(wstr);
+	ret = ConvertWideToSysNativeMB(wstr);
 
-    free(wstr);
+	free(wstr);
 
-    return ret;
+	return ret;
 #else
-    return strdup(str);
+	return strdup(str);
 #endif
 }
 
-FILE* M_fopen(const char *filename, const char *mode)
+FILE *M_fopen(const char *filename, const char *mode)
 {
 #ifdef _WIN32
-    FILE *file;
-    wchar_t *wname = NULL;
-    wchar_t *wmode = NULL;
+	FILE *file;
+	wchar_t *wname = NULL;
+	wchar_t *wmode = NULL;
 
-    wname = ConvertUtf8ToWide(filename);
+	wname = ConvertUtf8ToWide(filename);
 
-    if (!wname)
-    {
-        return NULL;
-    }
+	if (!wname) return NULL;
 
-    wmode = ConvertUtf8ToWide(mode);
+	wmode = ConvertUtf8ToWide(mode);
 
-    if (!wmode)
-    {
-        free(wname);
-        return NULL;
-    }
+	if (!wmode)
+	{
+		free(wname);
+		return NULL;
+	}
 
-    file = _wfopen(wname, wmode);
+	file = _wfopen(wname, wmode);
 
-    free(wname);
-    free(wmode);
+	free(wname);
+	free(wmode);
 
-    return file;
+	return file;
 #else
-    return fopen(filename, mode);
+	return fopen(filename, mode);
 #endif
 }
 
 int M_remove(const char *path)
 {
 #ifdef _WIN32
-    wchar_t *wpath = NULL;
-    int ret;
+	wchar_t *wpath = NULL;
+	int ret;
 
-    wpath = ConvertUtf8ToWide(path);
+	wpath = ConvertUtf8ToWide(path);
 
-    if (!wpath)
-    {
-        return 0;
-    }
+	if (!wpath) return 0;
 
-    ret = _wremove(wpath);
+	ret = _wremove(wpath);
 
-    free(wpath);
+	free(wpath);
 
-    return ret;
+	return ret;
 #else
-    return remove(path);
+	return remove(path);
 #endif
 }
 
 int M_stat(const char *path, struct stat *buf)
 {
 #ifdef _WIN32
-    wchar_t *wpath = NULL;
-    struct _stat wbuf;
-    int ret;
+	wchar_t *wpath = NULL;
+	struct _stat wbuf;
+	int ret;
 
-    wpath = ConvertUtf8ToWide(path);
+	wpath = ConvertUtf8ToWide(path);
 
-    if (!wpath)
-    {
-        return -1;
-    }
+	if (!wpath) return -1;
 
-    ret = _wstat(wpath, &wbuf);
+	ret = _wstat(wpath, &wbuf);
 
-    // The _wstat() function expects a struct _stat* parameter that is
-    // incompatible with struct stat*. We copy only the required compatible
-    // field.
-    buf->st_mode = wbuf.st_mode;
-    buf->st_mtime = wbuf.st_mtime;
+	// The _wstat() function expects a struct _stat* parameter that is
+	// incompatible with struct stat*. We copy only the required compatible
+	// field.
+	buf->st_mode = wbuf.st_mode;
+	buf->st_mtime = wbuf.st_mtime;
 
-    free(wpath);
+	free(wpath);
 
-    return ret;
+	return ret;
 #else
-    return stat(path, buf);
+	return stat(path, buf);
 #endif
 }
 
 int M_open(const char *filename, int oflag)
 {
 #ifdef _WIN32
-    wchar_t *wname = NULL;
-    int ret;
+	wchar_t *wname = NULL;
+	int ret;
 
-    wname = ConvertUtf8ToWide(filename);
+	wname = ConvertUtf8ToWide(filename);
 
-    if (!wname)
-    {
-        return 0;
-    }
+	if (!wname) return 0;
 
-    ret = _wopen(wname, oflag);
+	ret = _wopen(wname, oflag);
 
-    free(wname);
+	free(wname);
 
-    return ret;
+	return ret;
 #else
-    return open(filename, oflag);
+	return open(filename, oflag);
 #endif
 }
 
 int M_access(const char *path, int mode)
 {
 #ifdef _WIN32
-    wchar_t *wpath = NULL;
-    int ret;
+	wchar_t *wpath = NULL;
+	int ret;
 
-    wpath = ConvertUtf8ToWide(path);
+	wpath = ConvertUtf8ToWide(path);
 
-    if (!wpath)
-    {
-        return 0;
-    }
+	if (!wpath) return 0;
 
-    ret = _waccess(wpath, mode);
+	ret = _waccess(wpath, mode);
 
-    free(wpath);
+	free(wpath);
 
-    return ret;
+	return ret;
 #else
-    return access(path, mode);
+	return access(path, mode);
 #endif
 }
 
 char *M_getcwd(char *buffer, int len)
 {
 #ifdef _WIN32
-    wchar_t *wret;
-    char *ret;
+	wchar_t *wret;
+	char *ret;
 
-    wret = _wgetcwd(NULL, 0);
+	wret = _wgetcwd(NULL, 0);
 
-    if (!wret)
-    {
-        return NULL;
-    }
+	if (!wret) return NULL;
 
-    ret = ConvertWideToUtf8(wret);
+	ret = ConvertWideToUtf8(wret);
 
-    free(wret);
+	free(wret);
 
-    if (!ret)
-    {
-        return NULL;
-    }
+	if (!ret) return NULL;
 
-    if (buffer)
-    {
-        if (strlen(ret) >= len)
-        {
-            free(ret);
-            return NULL;
-        }
+	if (buffer)
+	{
+		if (strlen(ret) >= len)
+		{
+			free(ret);
+			return NULL;
+		}
 
-        strcpy(buffer, ret);
-        free(ret);
+		strcpy(buffer, ret);
+		free(ret);
 
-        return buffer;
-    }
-    else
-    {
-        return ret;
-    }
+		return buffer;
+	}
+	else { return ret; }
 #else
-    return getcwd(buffer, len);
+	return getcwd(buffer, len);
 #endif
 }
 
 int M_mkdir(const char *path)
 {
 #ifdef _WIN32
-    wchar_t *wdir = NULL;
-    int ret;
+	wchar_t *wdir = NULL;
+	int ret;
 
-    wdir = ConvertUtf8ToWide(path);
+	wdir = ConvertUtf8ToWide(path);
 
-    if (!wdir)
-    {
-        return -1;
-    }
+	if (!wdir) return -1;
 
-    ret = _wmkdir(wdir);
+	ret = _wmkdir(wdir);
 
-    free(wdir);
+	free(wdir);
 
-    return ret;
+	return ret;
 #else
-    return mkdir(path, 0755);
+	return mkdir(path, 0755);
 #endif
 }
 
 #ifdef _WIN32
-typedef struct {
-    char *var;
-    const char *name;
+typedef struct
+{
+	char *var;
+	const char *name;
 } env_var_t;
 
 static env_var_t *env_vars;
@@ -381,43 +346,33 @@ static int num_vars;
 char *M_getenv(const char *name)
 {
 #ifdef _WIN32
-    int i;
-    wchar_t *wenv = NULL, *wname = NULL;
-    char *env;
+	int i;
+	wchar_t *wenv = NULL, *wname = NULL;
+	char *env;
 
-    for (i = 0; i < num_vars; ++i)
-    {
-        if (!strcasecmp(name, env_vars[i].name))
-           return env_vars[i].var;
-    }
+	for (i = 0; i < num_vars; ++i)
+		if (!strcasecmp(name, env_vars[i].name)) return env_vars[i].var;
 
-    wname = ConvertUtf8ToWide(name);
+	wname = ConvertUtf8ToWide(name);
 
-    if (!wname)
-    {
-        return NULL;
-    }
+	if (!wname) return NULL;
 
-    wenv = _wgetenv(wname);
+	wenv = _wgetenv(wname);
 
-    free(wname);
+	free(wname);
 
-    if (wenv)
-    {
-        env = ConvertWideToUtf8(wenv);
-    }
-    else
-    {
-        env = NULL;
-    }
+	if (wenv)
+		env = ConvertWideToUtf8(wenv);
+	else
+		env = NULL;
 
-    env_vars = realloc(env_vars, (num_vars + 1) * sizeof(*env_vars));
-    env_vars[num_vars].var = env;
-    env_vars[num_vars].name = strdup(name);
-    ++num_vars;
+	env_vars = realloc(env_vars, (num_vars + 1) * sizeof(*env_vars));
+	env_vars[num_vars].var = env;
+	env_vars[num_vars].name = strdup(name);
+	++num_vars;
 
-    return env;
+	return env;
 #else
-    return getenv(name);
+	return getenv(name);
 #endif
 }

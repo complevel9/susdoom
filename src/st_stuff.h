@@ -61,7 +61,7 @@ void ST_SetScaledWidth(void);
 //
 
 // Called by main loop.
-dboolean ST_Responder(event_t* ev);
+dboolean ST_Responder(event_t *ev);
 
 // Called by main loop.
 void ST_Ticker(void);
@@ -81,16 +81,16 @@ void ST_SetResolution(void);
 // States for status bar code.
 typedef enum
 {
-  AutomapState,
-  FirstPersonState
+	AutomapState,
+	FirstPersonState
 } st_stateenum_t;
 
 // States for the chat code.
 typedef enum
 {
-  StartChatState,
-  WaitDestState,
-  GetChatState
+	StartChatState,
+	WaitDestState,
+	GetChatState
 } st_chatstateenum_t;
 
 // killough 5/2/98: moved from m_misc.c:
@@ -110,11 +110,12 @@ extern int sts_armorcolor_type;  // armor color depends on type
 
 extern int st_palette;    // cph 2006/04/06 - make palette visible
 
-typedef enum {
-  ammo_colour_behaviour_no,
-  ammo_colour_behaviour_full_only,
-  ammo_colour_behaviour_yes,
-  ammo_colour_behaviour_max
+typedef enum
+{
+	ammo_colour_behaviour_no,
+	ammo_colour_behaviour_full_only,
+	ammo_colour_behaviour_yes,
+	ammo_colour_behaviour_max
 } ammo_colour_behaviour_t;
 extern ammo_colour_behaviour_t ammo_colour_behaviour;
 extern const char *ammo_colour_behaviour_list[];

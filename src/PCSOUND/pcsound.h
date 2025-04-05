@@ -1,4 +1,4 @@
-// Emacs style mode select   -*- C++ -*- 
+// Emacs style mode select   -*- C++ -*-
 //-----------------------------------------------------------------------------
 //
 // Copyright(C) 2007 Simon Howard
@@ -35,13 +35,12 @@ typedef void (*pcsound_shutdown_func)(void);
 
 struct pcsound_driver_s
 {
-    const char *name;
-    pcsound_init_func init_func;
-    pcsound_shutdown_func shutdown_func;
+	const char *name;
+	pcsound_init_func init_func;
+	pcsound_shutdown_func shutdown_func;
 };
 
 int PCSound_Init(pcsound_callback_func callback_func);
 void PCSound_Shutdown(void);
 
 #endif /* #ifndef PCSOUND_H */
-

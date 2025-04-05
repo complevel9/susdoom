@@ -64,8 +64,7 @@
 - (NSString *)wadForIndex:(int)index;
 - (NSString *)selectedWad;
 - (void)updateGameWad;
-- (void)watcher:(id)watcher receivedNotification:(NSString *)notification
-        forPath:(NSString *)path;
+- (void)watcher:(id)watcher receivedNotification:(NSString *)notification forPath:(NSString *)path;
 
 // Game
 - (void)tryToLaunch;

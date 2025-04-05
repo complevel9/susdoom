@@ -685,7 +685,6 @@
   "the stomp of a cyberdemon's iron shoe."
 
 
-
 /*
  * Character cast strings F_FINALE.C
  */

@@ -31,8 +31,8 @@ typedef void (*opl_callback_t)(void *data);
 
 typedef enum
 {
-    OPL_REGISTER_PORT = 0,
-    OPL_DATA_PORT = 1
+	OPL_REGISTER_PORT = 0,
+	OPL_DATA_PORT = 1
 } opl_port_t;
 
 #define OPL_NUM_OPERATORS   21
@@ -112,7 +112,7 @@ void OPL_SetPaused(int paused);
 
 extern unsigned int opl_sample_rate;
 
-void OPL_Render_Samples (void *dest, unsigned nsamp);
+void OPL_Render_Samples(void *dest, unsigned nsamp);
 
 
 void OPL_SetCallback(unsigned int ms, opl_callback_t callback, void *data);
@@ -120,4 +120,3 @@ void OPL_SetCallback(unsigned int ms, opl_callback_t callback, void *data);
 void OPL_ClearCallbacks(void);
 
 #endif
-

@@ -50,49 +50,48 @@ synced.
 typedef struct
 {
   // descriptive name of the player, such as "OPL2 Synth"
-  const char *(*name)(void);
+	const char *(*name)(void);
 
   // samplerate is in hz.  return is 1 for success
-  int (*init)(int samplerate);
+	int (*init)(int samplerate);
 
   // deallocate structures, cleanup, ...
-  void (*shutdown)(void);
+	void (*shutdown)(void);
 
   // set volume, 0 = off, 15 = max
-  void (*setvolume)(int v);
+	void (*setvolume)(int v);
 
   // pause currently running song.
-  void (*pause)(void);
+	void (*pause)(void);
 
   // undo pause
-  void (*resume)(void);
+	void (*resume)(void);
 
   // return a player-specific handle, or NULL on failure.
   // data does not belong to player, but it will persist as long as unregister is not called
-  const void *(*registersong)(const void *data, unsigned len);
+	const void *(*registersong)(const void *data, unsigned len);
 
   // deallocate structures, etc.  data is no longer valid
-  void (*unregistersong)(const void *handle);
+	void (*unregistersong)(const void *handle);
 
-  void (*play)(const void *handle, int looping);
+	void (*play)(const void *handle, int looping);
 
   // stop
-  void (*stop)(void);
+	void (*stop)(void);
 
   // s16 stereo, with samplerate as specified in init.  player needs to be able to handle
   // just about anything for nsamp.  render can be called even during pause+stop.
-  void (*render)(void *dest, unsigned nsamp);
+	void (*render)(void *dest, unsigned nsamp);
 } music_player_t;
-
 
 
 // helper for deferred load dll
 
 #ifdef _MSC_VER
 #if 1
-#define TESTDLLLOAD(a,b)
+#define TESTDLLLOAD(a, b)
 #else
-#define TESTDLLLOAD(a,b)                                                           \
+#define TESTDLLLOAD(a, b)                                                           \
   if (1)                                                                           \
   {                                                                                \
     HMODULE h = LoadLibrary (a);                                                   \
@@ -111,14 +110,9 @@ typedef struct
 #endif
 
 #else // _MSC_VER
-#define TESTDLLLOAD(a,b)
+#define TESTDLLLOAD(a, b)
 
 #endif // _MSC_VER
-
-
-
-
-
 
 
 #endif // MUSICPLAYER_H

@@ -18,7 +18,7 @@
 #ifndef TXT_MAIN_H
 #define TXT_MAIN_H
 
-// For the moment, txt_sdl.c is the only implementation of the base 
+// For the moment, txt_sdl.c is the only implementation of the base
 // text mode screen API:
 
 #include "txt_sdl.h"
@@ -70,32 +70,32 @@
 
 typedef enum
 {
-    TXT_COLOR_BLACK,
-    TXT_COLOR_BLUE,
-    TXT_COLOR_GREEN,
-    TXT_COLOR_CYAN,
-    TXT_COLOR_RED,
-    TXT_COLOR_MAGENTA,
-    TXT_COLOR_BROWN,
-    TXT_COLOR_GREY,
-    TXT_COLOR_DARK_GREY,
-    TXT_COLOR_BRIGHT_BLUE,
-    TXT_COLOR_BRIGHT_GREEN,
-    TXT_COLOR_BRIGHT_CYAN,
-    TXT_COLOR_BRIGHT_RED,
-    TXT_COLOR_BRIGHT_MAGENTA,
-    TXT_COLOR_YELLOW,
-    TXT_COLOR_BRIGHT_WHITE,
+	TXT_COLOR_BLACK,
+	TXT_COLOR_BLUE,
+	TXT_COLOR_GREEN,
+	TXT_COLOR_CYAN,
+	TXT_COLOR_RED,
+	TXT_COLOR_MAGENTA,
+	TXT_COLOR_BROWN,
+	TXT_COLOR_GREY,
+	TXT_COLOR_DARK_GREY,
+	TXT_COLOR_BRIGHT_BLUE,
+	TXT_COLOR_BRIGHT_GREEN,
+	TXT_COLOR_BRIGHT_CYAN,
+	TXT_COLOR_BRIGHT_RED,
+	TXT_COLOR_BRIGHT_MAGENTA,
+	TXT_COLOR_YELLOW,
+	TXT_COLOR_BRIGHT_WHITE,
 } txt_color_t;
 
 // Modifier keys.
 
 typedef enum
 {
-    TXT_MOD_SHIFT,
-    TXT_MOD_CTRL,
-    TXT_MOD_ALT,
-    TXT_NUM_MODIFIERS
+	TXT_MOD_SHIFT,
+	TXT_MOD_CTRL,
+	TXT_MOD_ALT,
+	TXT_NUM_MODIFIERS
 } txt_modifier_t;
 
 // Initialize the screen
@@ -120,7 +120,7 @@ int TXT_GetChar(void);
 // Read the current state of modifier keys that are held down.
 int TXT_GetModifierState(txt_modifier_t mod);
 
-// Provides a short description of a key code, placing into the 
+// Provides a short description of a key code, placing into the
 // provided buffer.
 void TXT_GetKeyDescription(int key, char *buf, size_t buf_len);
 
@@ -151,4 +151,3 @@ int TXT_vsnprintf(char *buf, size_t buf_len, const char *s, va_list args);
 int TXT_snprintf(char *buf, size_t buf_len, const char *s, ...);
 
 #endif /* #ifndef TXT_MAIN_H */
-

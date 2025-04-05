@@ -40,24 +40,24 @@
 
 typedef struct overrun_param_s
 {
-  int warn;
-  int emulate;
-  int footer;
-  int footer_emulate;
-  int promted;
-  int shit_happens;
+	int warn;
+	int emulate;
+	int footer;
+	int footer_emulate;
+	int promted;
+	int shit_happens;
 } overrun_param_t;
 
 typedef enum overrun_list_s
 {
-  OVERFLOW_SPECHIT,
-  OVERFLOW_REJECT,
-  OVERFLOW_INTERCEPT,
-  OVERFLOW_PLYERINGAME,
-  OVERFLOW_DONUT,
-  OVERFLOW_MISSEDBACKSIDE,
+	OVERFLOW_SPECHIT,
+	OVERFLOW_REJECT,
+	OVERFLOW_INTERCEPT,
+	OVERFLOW_PLYERINGAME,
+	OVERFLOW_DONUT,
+	OVERFLOW_MISSEDBACKSIDE,
 
-  OVERFLOW_MAX //last
+	OVERFLOW_MAX // last
 } overrun_list_t;
 
 extern int overflows_enabled;
@@ -81,9 +81,9 @@ extern const char *overflow_cfgname[OVERFLOW_MAX];
 
 typedef struct
 {
-    int len;
-    void *addr;
-    dboolean int16_array;
+	int len;
+	void *addr;
+	dboolean int16_array;
 } intercepts_overrun_t;
 
 extern intercepts_overrun_t intercepts_overrun[];
@@ -93,7 +93,7 @@ void InterceptsOverrun(int num_intercepts, intercept_t *intercept);
 // playeringame overrun emulation
 //
 
-int PlayeringameOverrun(const mapthing_t* mthing);
+int PlayeringameOverrun(const mapthing_t *mthing);
 
 //
 // spechit overrun emulation
@@ -104,17 +104,17 @@ int PlayeringameOverrun(const mapthing_t* mthing);
 
 typedef struct spechit_overrun_param_s
 {
-  line_t *line;
+	line_t *line;
 
-  line_t ***spechit;
-  int *numspechit;
+	line_t ***spechit;
+	int *numspechit;
 
-  fixed_t *tmbbox;
-  fixed_t *tmfloorz;
-  fixed_t *tmceilingz;
+	fixed_t *tmbbox;
+	fixed_t *tmfloorz;
+	fixed_t *tmceilingz;
 
-  dboolean *crushchange;
-  dboolean *nofit;
+	dboolean *crushchange;
+	dboolean *nofit;
 } spechit_overrun_param_t;
 
 extern unsigned int spechit_baseaddr;
@@ -134,6 +134,6 @@ void RejectOverrun(int rejectlump, const byte **rejectmatrix, int totallines);
 int DonutOverrun(fixed_t *pfloorheight, short *pfloorpic);
 
 int MissedBackSideOverrun(line_t *line);
-sector_t* GetSectorAtNullAddress(void);
+sector_t *GetSectorAtNullAddress(void);
 
 #endif // __G_OVERFLOW__

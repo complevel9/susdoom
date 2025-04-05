@@ -42,8 +42,8 @@
 #include "m_random.h"
 #include "lprintf.h"
 
-//#define RNG_TRACE
-//#define SKIP_MISC
+// #define RNG_TRACE
+// #define SKIP_MISC
 
 //
 // M_Random
@@ -51,27 +51,27 @@
 //
 // who the fuck formatted this
 const unsigned char rndtable[256] = { // 1/19/98 killough -- made const
-    0,  8, 109, 220, 222, 241, 149, 107,  75, 248, 254, 140,  16,  66 ,    // 0-13
-    74, 21, 211,  47,  80, 242, 154,  27, 205, 128, 161,  89,  77,  36 ,   // 14-
-    95, 110,  85,  48, 212, 140, 211, 249,  22,  79, 200,  50,  28, 188 ,   // 28-
-    52, 140, 202, 120,  68, 145,  62,  70, 184, 190,  91, 197, 152, 224 ,   // 42
-    149,104,  25, 178, 252, 182, 202, 182, 141, 197,   4,  81, 181, 242 ,  // 56
-    145,  42,  39, 227, 156, 198, 225, 193, 219,  93, 122, 175, 249,   0 ,  // 70
-    175, 143,  70, 239,  46, 246, 163,  53, 163, 109, 168, 135,   2, 235 ,  // 84
-    25,  92,  20, 145, 138,  77,  69, 166,  78, 176, 173, 212, 166, 113 ,   // 98
-    94, 161,  41,  50, 239,  49, 111, 164,  70,  60,   2,  37, 171,  75 ,   // 112
-    136, 156,  11,  56,  42, 146, 138, 229,  73, 146,  77,  61,  98, 196 ,  // 126
-    135, 106,  63, 197, 195,  86,  96, 203, 113, 101, 170, 247, 181, 113 ,  // 140
-    80, 250, 108,   7, 255, 237, 129, 226,  79, 107, 112, 166, 103, 241 ,   // 154
-    24, 223, 239, 120, 198,  58,  60,  82, 128,   3, 184,  66, 143, 224 ,   // 168
-    145, 224,  81, 206, 163,  45,  63,  90, 168, 114,  59,  33, 159,  95 ,  // 182
-    28, 139, 123,  98, 125, 196,  15,  70, 194, 253,  54,  14, 109, 226 ,   // 196
-    71,  17, 161,  93, 186,  87, 244, 138,  20,  52, 123, 251,  26,  36 ,   // 210
-    17,  46,  52, 231, 232,  76,  31, 221,  84,  37, 216, 165, 212, 106 ,   // 224
-    197, 242,  98,  43,  39, 175, 254, 145, 190,  84, 118, 222, 187, 136 ,  // 238
-    120, 163, 236, 249
-};
+  0, 8, 109, 220, 222, 241, 149, 107, 75, 248, 254, 140, 16, 66,    // 0-13
+  74, 21, 211, 47, 80, 242, 154, 27, 205, 128, 161, 89, 77, 36,   // 14-
+  95, 110, 85, 48, 212, 140, 211, 249, 22, 79, 200, 50, 28, 188,   // 28-
+  52, 140, 202, 120, 68, 145, 62, 70, 184, 190, 91, 197, 152, 224,   // 42
+  149, 104, 25, 178, 252, 182, 202, 182, 141, 197, 4, 81, 181, 242,  // 56
+  145, 42, 39, 227, 156, 198, 225, 193, 219, 93, 122, 175, 249, 0,  // 70
+  175, 143, 70, 239, 46, 246, 163, 53, 163, 109, 168, 135, 2, 235,  // 84
+  25, 92, 20, 145, 138, 77, 69, 166, 78, 176, 173, 212, 166, 113,   // 98
+  94, 161, 41, 50, 239, 49, 111, 164, 70, 60, 2, 37, 171, 75,   // 112
+  136, 156, 11, 56, 42, 146, 138, 229, 73, 146, 77, 61, 98, 196,  // 126
+  135, 106, 63, 197, 195, 86, 96, 203, 113, 101, 170, 247, 181, 113,  // 140
+  80, 250, 108, 7, 255, 237, 129, 226, 79, 107, 112, 166, 103, 241,   // 154
+  24, 223, 239, 120, 198, 58, 60, 82, 128, 3, 184, 66, 143, 224,   // 168
+  145, 224, 81, 206, 163, 45, 63, 90, 168, 114, 59, 33, 159, 95,  // 182
+  28, 139, 123, 98, 125, 196, 15, 70, 194, 253, 54, 14, 109, 226,   // 196
+  71, 17, 161, 93, 186, 87, 244, 138, 20, 52, 123, 251, 26, 36,   // 210
+  17, 46, 52, 231, 232, 76, 31, 221, 84, 37, 216, 165, 212, 106,   // 224
+  197, 242, 98, 43, 39, 175, 254, 145, 190, 84, 118, 222, 187, 136,  // 238
+  120, 163, 236, 249};
 
+// clang-format off
 /*
 thank you idsoftware for not formatting this stupid table properly
 0,    8,    109,  220,  222,  241,  149,  107,  75,   248,  254,  140,  16,   66,   74,   21,   // 0   - 15
@@ -91,19 +91,16 @@ thank you idsoftware for not formatting this stupid table properly
 17,   46,   52,   231,  232,  76,   31,   221,  84,   37,   216,  165,  212,  106,  197,  242,  // 224 - 239
 98,   43,   39,   175,  254,  145,  190,  84,   118,  222,  187,  136,  120,  163,  236,  249   // 240 - 255
 */
+// clang-format on
 
 // bes 05/16/24: rng class name for logging/tracing
-static const char *rng_class_name[] = {
-  "skullfly", "damage", "crush", "genlift", "killtics", "damagemobj",
-  "painchance", "lights", "explode", "respawn", "lastlook", "spawnthing",
-  "spawnpuff", "spawnblood", "missile", "shadow", "plats", "punch",
-  "punchangle", "saw", "plasma", "gunshot", "misfire", "shotgun",
-  "bfg", "slimehurt", "dmspawn", "missrange", "trywalk", "newchase",
-  "newchasedir", "see", "facetarget", "posattack", "sposattack", "cposattack",
-  "spidrefire", "troopattack", "sargattack", "headattack", "bruisattack", "tracer",
-  "skelfist", "scream", "brainscream", "cposrefire", "brainexp", "spawnfly",
-  "misc", "all_in_one", "NUMPRCLASS"
-};
+static const char *rng_class_name[] = {"skullfly", "damage", "crush", "genlift", "killtics",
+  "damagemobj", "painchance", "lights", "explode", "respawn", "lastlook", "spawnthing", "spawnpuff",
+  "spawnblood", "missile", "shadow", "plats", "punch", "punchangle", "saw", "plasma", "gunshot",
+  "misfire", "shotgun", "bfg", "slimehurt", "dmspawn", "missrange", "trywalk", "newchase",
+  "newchasedir", "see", "facetarget", "posattack", "sposattack", "cposattack", "spidrefire",
+  "troopattack", "sargattack", "headattack", "bruisattack", "tracer", "skelfist", "scream",
+  "brainscream", "cposrefire", "brainexp", "spawnfly", "misc", "all_in_one", "NUMPRCLASS"};
 // rng tic trace
 static short rngcalls[NUMPRCLASS] = {0};
 static char rngtracestr[32 * NUMPRCLASS + 1];
@@ -112,33 +109,34 @@ static char rngtracestr[32 * NUMPRCLASS + 1];
 // returns 1 if at least 1 call occurred
 int rng_build_tracestr(void)
 {
-  static int lastcalled_buildtracestr = 0;
-  int cur;
-  if (lastcalled_buildtracestr == gametic)
-    return 0;
+	static int lastcalled_buildtracestr = 0;
+	int cur;
+	if (lastcalled_buildtracestr == gametic) return 0;
 
-  lastcalled_buildtracestr = gametic;
-  cur = 0;
-  for (int i = 0; i < NUMPRCLASS; i++) {
+	lastcalled_buildtracestr = gametic;
+	cur = 0;
+	for (int i = 0; i < NUMPRCLASS; i++)
+	{
 #ifdef SKIP_MISC
-    if (i == pr_misc)
-		continue;
+		if (i == pr_misc) continue;
 #endif // SKIP_MISC
-    if (rngcalls[i]) {
-      cur += snprintf(rngtracestr + cur, 32, "%s x%d;  ", rng_class_name[i], rngcalls[i]);
-      rngcalls[i] = 0;
-    }
-  }
-  return cur;
+		if (rngcalls[i])
+		{
+			cur += snprintf(rngtracestr + cur, 32, "%s x%d;  ", rng_class_name[i], rngcalls[i]);
+			rngcalls[i] = 0;
+		}
+	}
+	return cur;
 }
 
 rng_t rng;     // the random number state
 
 unsigned int rngseed = 1993;   // killough 3/26/98: The seed
 
-int (P_Random)(pr_class_t pr_class
+int(P_Random)(pr_class_t pr_class
 #ifdef INSTRUMENTED
-     , const char *file, int line
+  ,
+  const char *file, int line
 #endif
 )
 {
@@ -152,55 +150,54 @@ int (P_Random)(pr_class_t pr_class
   // it's like playing with explosives :) Lee
 
 #ifdef INSTRUMENTED
-  //lprintf(LO_DEBUG, "%.10d: %.10d - %s:%.5d\n", gametic, pr_class, file, line);
+  // lprintf(LO_DEBUG, "%.10d: %.10d - %s:%.5d\n", gametic, pr_class, file, line);
 #endif
 
   // reimplementing INSTRUMENTED lol
 #ifdef RNG_TRACE
-  rngcalls[pr_class]++;
+	rngcalls[pr_class]++;
 
-  if (rng_build_tracestr()) {
-    lprintf(LO_DEBUG, "%.5d:%.2d.%.2d: %s\n", gametic/2100, gametic/35, gametic % 35, rngtracestr);
-  }
+	if (rng_build_tracestr())
+	{
+		lprintf(LO_DEBUG, "%.5d:%.2d.%.2d: %s\n", gametic / 2100, gametic / 35, gametic % 35,
+		  rngtracestr);
+	}
 #endif
 
-  int compat = pr_class == pr_misc ?
-    (rng.prndindex = (rng.prndindex + 1) & 255) :
-    (rng. rndindex = (rng. rndindex + 1) & 255) ;
+	int compat = pr_class == pr_misc ? (rng.prndindex = (rng.prndindex + 1) & 255)
+	                                 : (rng.rndindex = (rng.rndindex + 1) & 255);
 
-  unsigned long boom;
+	unsigned long boom;
 
   // killough 3/31/98:
   // If demo sync insurance is not requested, use
   // much more unstable method by putting everything
   // except pr_misc into pr_all_in_one
 
-  if (pr_class != pr_misc && !demo_insurance)      // killough 3/31/98
-    pr_class = pr_all_in_one;
+	if (pr_class != pr_misc && !demo_insurance)      // killough 3/31/98
+		pr_class = pr_all_in_one;
 
-  boom = rng.seed[pr_class];
+	boom = rng.seed[pr_class];
 
   // killough 3/26/98: add pr_class*2 to addend
 
-  rng.seed[pr_class] = boom * 1664525ul + 221297ul + pr_class*2;
+	rng.seed[pr_class] = boom * 1664525ul + 221297ul + pr_class * 2;
 
-  if (demo_compatibility)
-    return rndtable[compat];
+	if (demo_compatibility) return rndtable[compat];
 
-  boom >>= 20;
+	boom >>= 20;
 
   /* killough 3/30/98: use gametic-levelstarttic to shuffle RNG
-   * killough 3/31/98: but only if demo insurance requested,
-   * since it's unnecessary for random shuffling otherwise
-   * killough 9/29/98: but use basetic now instead of levelstarttic
-   * cph - DEMOSYNC - this change makes MBF demos work,
-   *       but does it break Boom ones?
-   */
+	 * killough 3/31/98: but only if demo insurance requested,
+	 * since it's unnecessary for random shuffling otherwise
+	 * killough 9/29/98: but use basetic now instead of levelstarttic
+	 * cph - DEMOSYNC - this change makes MBF demos work,
+	 *       but does it break Boom ones?
+	 */
 
-  if (demo_insurance)
-    boom += (gametic-basetic)*7;
+	if (demo_insurance) boom += (gametic - basetic) * 7;
 
-  return boom & 255;
+	return boom & 255;
 }
 
 // Initialize all the seeds
@@ -210,11 +207,11 @@ int (P_Random)(pr_class_t pr_class
 // are added they must be added to end of pr_class_t list. killough
 //
 
-void M_ClearRandom (void)
+void M_ClearRandom(void)
 {
-  int i;
-  unsigned int seed = rngseed*2+1;     // add 3/26/98: add rngseed
-  for (i=0; i<NUMPRCLASS; i++)         // go through each pr_class and set
-    rng.seed[i] = seed *= 69069ul;     // each starting seed differently
-  rng.prndindex = rng.rndindex = 0;    // clear two compatibility indices
+	int i;
+	unsigned int seed = rngseed * 2 + 1;     // add 3/26/98: add rngseed
+	for (i = 0; i < NUMPRCLASS; i++)         // go through each pr_class and set
+		rng.seed[i] = seed *= 69069ul;     // each starting seed differently
+	rng.prndindex = rng.rndindex = 0;    // clear two compatibility indices
 }

@@ -1,15 +1,15 @@
 /* =============================================================================
-	FILE:		UKKQueue.h
-	PROJECT:	Filie
-    
+    FILE:		UKKQueue.h
+    PROJECT:	Filie
+
     COPYRIGHT:  (c) 2003 M. Uli Kusterer, all rights reserved.
-    
-	AUTHORS:	M. Uli Kusterer - UK
-    
+
+    AUTHORS:	M. Uli Kusterer - UK
+
     LICENSES:   GPL, Modified BSD
 
-	REVISIONS:
-		2003-12-21	UK	Created.
+    REVISIONS:
+        2003-12-21	UK	Created.
    ========================================================================== */
 
 // -----------------------------------------------------------------------------
@@ -57,33 +57,36 @@
 
 @interface UKKQueue : NSObject <UKFileWatcher>
 {
-	int				queueFD;			// The actual queue ID.
-	NSMutableArray* watchedPaths;		// List of NSStrings containing the paths we're watching.
-	NSMutableArray* watchedFDs;			// List of NSNumbers containing the file descriptors we're watching.
-	id				delegate;			// Gets messages about changes instead of notification center, if specified.
-	id				delegateProxy;		// Proxy object to which we send messages so they reach delegate on the main thread.
-	BOOL			alwaysNotify;		// Send notifications even if we have a delegate? Defaults to NO.
-	BOOL			keepThreadRunning;	// Termination criterion of our thread.
+	int queueFD;   // The actual queue ID.
+	NSMutableArray *watchedPaths;  // List of NSStrings containing the paths we're watching.
+	NSMutableArray *watchedFDs; // List of NSNumbers containing the file descriptors we're watching.
+	id delegate; // Gets messages about changes instead of notification center, if specified.
+	id delegateProxy; // Proxy object to which we send messages so they reach delegate on the main
+	                  // thread.
+	BOOL alwaysNotify; // Send notifications even if we have a delegate? Defaults to NO.
+	BOOL keepThreadRunning; // Termination criterion of our thread.
 }
 
-+(UKKQueue*)    sharedQueue;        // Returns a singleton, a shared kqueue object Handy if you're subscribing to the notifications. Use this, or just create separate objects using alloc/init. Whatever floats your boat.
++ (UKKQueue *)sharedQueue; // Returns a singleton, a shared kqueue object Handy if you're
+                           // subscribing to the notifications. Use this, or just create separate
+                           // objects using alloc/init. Whatever floats your boat.
 
--(int)  queueFD;		// I know you unix geeks want this...
+- (int)queueFD; // I know you unix geeks want this...
 
 // High-level file watching: (use UKFileWatcher protocol methods instead, where possible!)
--(void) addPathToQueue: (NSString*)path;
--(void) addPathToQueue: (NSString*)path notifyingAbout: (u_int)fflags;
--(void) removePathFromQueue: (NSString*)path;
+- (void)addPathToQueue:(NSString *)path;
+- (void)addPathToQueue:(NSString *)path notifyingAbout:(u_int)fflags;
+- (void)removePathFromQueue:(NSString *)path;
 
--(id)	delegate;
--(void)	setDelegate: (id)newDelegate;
+- (id)delegate;
+- (void)setDelegate:(id)newDelegate;
 
--(BOOL)	alwaysNotify;
--(void)	setAlwaysNotify: (BOOL)n;
+- (BOOL)alwaysNotify;
+- (void)setAlwaysNotify:(BOOL)n;
 
 // private:
--(void)		watcherThread: (id)sender;
--(void)		postNotification: (NSString*)nm forFile: (NSString*)fp; // Message-posting bottleneck.
+- (void)watcherThread:(id)sender;
+- (void)postNotification:(NSString *)nm forFile:(NSString *)fp; // Message-posting bottleneck.
 
 @end
 
@@ -95,6 +98,6 @@
 
 @interface NSObject (UKKQueueDelegate)
 
--(void) kqueue: (UKKQueue*)kq receivedNotification: (NSString*)nm forFile: (NSString*)fpath;
+- (void)kqueue:(UKKQueue *)kq receivedNotification:(NSString *)nm forFile:(NSString *)fpath;
 
 @end

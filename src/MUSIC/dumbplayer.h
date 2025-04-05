@@ -32,15 +32,7 @@
 #define DUMBPLAYER_H
 
 
-
-
 extern const music_player_t db_player;
-
-
-
-
-
-
 
 
 #endif // DUMBPLAYER_H

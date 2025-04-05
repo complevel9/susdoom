@@ -32,16 +32,7 @@
 #define PORTMIDIPLAYER_H
 
 
-
-
 extern const music_player_t pm_player;
-
-
-
-
-
-
-
 
 
 #endif // PORTMIDI_H
