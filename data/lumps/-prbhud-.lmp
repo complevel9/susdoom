@@ -128,6 +128,9 @@ armor_big -298 -198
 hud 13
 tracers 2 151
 rngindex -315 -10
+intercepts -315 -18
+keyboard_move 20 40
+keyboard_strafe 20 40
 hudadd 2 159
 keys 24 168
 weapon 24 177

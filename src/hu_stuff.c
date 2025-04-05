@@ -159,6 +159,11 @@ static hu_mtext_t w_rtext;  // jff 2/26/98 text message refresh widget
 static hu_textline_t w_rngindex;   // bes 10/13/23 lol rng index
 static hu_textline_t w_itc;   // bes 01/18/24 lol intercepts
 
+// bes 05/04/25 keyboard display from tod doom
+static hu_textline_t w_keydisp_move;
+static hu_textline_t w_keydisp_strafe;
+// static hu_textline_t w_keydisp_misc;
+
 static hu_textline_t w_map_monsters;  // e6y monsters widget for automap
 static hu_textline_t w_map_secrets;   // e6y secrets widgets automap
 static hu_textline_t w_map_items;     // e6y items widgets automap
@@ -499,6 +504,8 @@ void HU_Start(void)
 
 	HUlib_initTextLine(&w_rngindex, 0, 0, hu_font2, HU_FONTSTART, CR_BLUE, VPT_NONE);
 	HUlib_initTextLine(&w_itc, 0, 0, hu_font2, HU_FONTSTART, CR_GREEN, VPT_NONE);
+	HUlib_initTextLine(&w_keydisp_move, 0, 0, hu_font2, HU_FONTSTART, CR_GRAY, VPT_NONE);
+	HUlib_initTextLine(&w_keydisp_strafe, 0, 0, hu_font2, HU_FONTSTART, CR_GRAY, VPT_NONE);
 
 
   // create the hud weapons widget
@@ -740,6 +747,12 @@ void HU_widget_draw_rngindex(void);
 void HU_widget_build_itc(void);
 void HU_widget_draw_itc(void);
 
+void HU_widget_build_keydisp_move(void);
+void HU_widget_draw_keydisp_move(void);
+void HU_widget_build_keydisp_strafe(void);
+void HU_widget_draw_keydisp_strafe(void);
+
+
 void HU_widget_build_health_big(void);
 void HU_widget_draw_health_big(void);
 void HU_widget_build_armor_big(void);
@@ -784,6 +797,10 @@ static hud_widget_t hud_name_widget[] = {
   {&w_ammo, 0, 0, 0, HU_widget_build_ammo, HU_widget_draw_ammo, "ammo"},
   {&w_rngindex, 0, 0, 0, HU_widget_build_rngindex, HU_widget_draw_rngindex, "rngindex"},
   {&w_itc, 0, 0, 0, HU_widget_build_itc, HU_widget_draw_itc, "intercepts"},
+  {&w_keydisp_move, 0, 0, 0, HU_widget_build_keydisp_move,
+    HU_widget_draw_keydisp_move, "keyboard_move"},
+  {&w_keydisp_strafe, 0, 0, 0, HU_widget_build_keydisp_strafe,
+    HU_widget_draw_keydisp_strafe, "keyboard_strafe"},
   {&w_weapon, 0, 0, 0, HU_widget_build_weapon, HU_widget_draw_weapon, "weapon"},
   {&w_keys, 0, 0, 0, HU_widget_build_keys, HU_widget_draw_keys, "keys"},
   {&w_monsec, 0, 0, 0, HU_widget_build_monsec, HU_widget_draw_monsec, "monsec"},
@@ -1177,6 +1194,55 @@ void HU_widget_build_itc(void)
 	while (*s) HUlib_addCharToTextLine(&w_itc, *(s++));
 }
 
+#define CR_VHIGH CR_RED
+#define CR_HIGH  CR_BLUE
+#define CR_MID   CR_GREEN
+#define CR_LOW   CR_WHITE
+
+static int HU_KeyboardDisplayColor(int v, int low, int mid, int high) {
+	if (v >= high) return CR_VHIGH;
+	if (v >= mid) return CR_HIGH;
+	if (v >= low) return CR_MID;
+	return CR_LOW;
+}
+
+static int keydisp_unitspace = 5;
+#define pcmd plr->cmd
+#define moveamt   pcmd.forwardmove
+#define strafeamt pcmd.sidemove
+
+void HU_widget_build_keydisp_move(void)
+{
+	HUlib_clearTextLine(&w_keydisp_move);
+	if (moveamt)
+	{
+		char *s;
+		char move_str[8];
+
+		snprintf(move_str, 5, "%+3d", moveamt);
+		s = move_str;
+		// while (*s)
+		// 	HUlib_addCharToTextLine(&w_keydisp_move, *(s++));
+		for (int i = 0; i < 256; i++)
+			HUlib_addCharToTextLine(&w_keydisp_move, i);
+	}
+}
+
+void HU_widget_build_keydisp_strafe(void)
+{
+	HUlib_clearTextLine(&w_keydisp_strafe);
+	if (strafeamt)
+	{
+		char *s;
+		char strafe_str[8];
+
+		snprintf(strafe_str, 5, "%+3d", strafeamt);
+		s = strafe_str;
+		while (*s)
+			HUlib_addCharToTextLine(&w_keydisp_strafe, *(s++));
+	}
+}
+//	HUlib_drawTextLine(&w_keydisp_misc, false);
 
 void HU_widget_draw_ammo(void)
 {
@@ -1196,6 +1262,34 @@ void HU_widget_draw_itc(void)
 	HUlib_drawTextLine(&w_itc, false);
 }
 
+void HU_widget_draw_keydisp_move(void)
+{
+	if (moveamt)
+	{
+		int movesign = -1 + (moveamt > 0)*2;
+		int movemag = moveamt * movesign;
+		int offy = keydisp_unitspace * -4 * (moveamt > 0);
+		w_keydisp_move.y += offy;
+		w_keydisp_move.cm = HU_KeyboardDisplayColor(movemag, 25, 50, 51);
+		HUlib_drawTextLine(&w_keydisp_move, false);
+		w_keydisp_move.y -= offy;
+	}
+}
+
+void HU_widget_draw_keydisp_strafe(void)
+{
+	if (strafeamt)
+	{
+		int strafesign = -1 + (strafeamt > 0)*2;
+		int strafemag = strafeamt * strafesign;
+		int offx = keydisp_unitspace * 4 * strafesign;
+		w_keydisp_strafe.x += offx;
+		w_keydisp_strafe.cm = HU_KeyboardDisplayColor(strafemag, 24, 40, 50);
+		HUlib_drawTextLine(&w_keydisp_strafe, false);
+		w_keydisp_strafe.x -= offx;
+	}
+//	HUlib_drawTextLine(&w_keydisp_misc, false);
+}
 
 void HU_widget_build_health(void)
 {
