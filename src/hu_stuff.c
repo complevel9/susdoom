@@ -1226,10 +1226,10 @@ void HU_widget_build_keydisp_move(void)
 
 		snprintf(move_str, 5, "%+3d", moveamt);
 		s = move_str;
-		// while (*s)
-		// 	HUlib_addCharToTextLine(&w_keydisp_move, *(s++));
-		for (int i = 0; i < 256; i++)
-			HUlib_addCharToTextLine(&w_keydisp_move, i);
+		while (*s)
+			HUlib_addCharToTextLine(&w_keydisp_move, *(s++));
+		//for (int i = 0; i < 256; i++) // debug to show all characters
+		//	HUlib_addCharToTextLine(&w_keydisp_move, i);
 	}
 }
 
